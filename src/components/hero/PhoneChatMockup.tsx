@@ -11,7 +11,7 @@ const Y = (px: number) => pct(px, 826);
  * the parent's font-size, not the box width. Requires container-type on the root. */
 const FSX = (px: number) => `${((px / 389) * 100).toFixed(2)}cqw`;
 
-function ChatScreen() {
+export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
   return (
     <div
       className="relative h-full w-full overflow-hidden rounded-[12.34%] bg-[#f4f6f5] [container-type:inline-size]"
@@ -97,9 +97,9 @@ function ChatScreen() {
 
       {/* suggestion pills */}
       {[
-        { left: 28, top: 391, w: 108.5, label: "Resumo dos gastos" },
-        { left: 141.3, top: 391, w: 152.3, label: "Como estão minhas finanças?" },
-        { left: 299.3, top: 391, w: 121.9, label: "Qual meu saldo este mês?" },
+        { left: 28, top: 391 + inputOffset, w: 108.5, label: "Resumo dos gastos" },
+        { left: 141.3, top: 391 + inputOffset, w: 152.3, label: "Como estão minhas finanças?" },
+        { left: 299.3, top: 391 + inputOffset, w: 121.9, label: "Qual meu saldo este mês?" },
       ].map((p) => (
         <div key={p.label} className="absolute" style={{ left: X(p.left), top: Y(p.top), width: X(p.w), height: Y(22) }}>
           <div className="h-full w-full rounded-full" style={{ background: "#51d98a" }} />
@@ -115,7 +115,7 @@ function ChatScreen() {
       {/* input bar */}
       <div
         className="absolute rounded-full bg-white"
-        style={{ left: X(28), top: Y(424), width: X(33), height: Y(33) }}
+        style={{ left: X(28), top: Y(424 + inputOffset), width: X(33), height: Y(33) }}
       >
         <p
           className="absolute inset-0 flex items-center justify-center font-display font-light text-[#686868]"
@@ -126,7 +126,7 @@ function ChatScreen() {
       </div>
       <div
         className="absolute rounded-full bg-white"
-        style={{ left: X(76.2), top: Y(424), width: X(236), height: Y(33) }}
+        style={{ left: X(76.2), top: Y(424 + inputOffset), width: X(236), height: Y(33) }}
       >
         <p
           className="absolute inset-0 flex items-center px-[6%] font-display font-light text-[#c7c7c7]"
@@ -137,7 +137,7 @@ function ChatScreen() {
       </div>
       <div
         className="absolute flex items-center justify-center rounded-full"
-        style={{ left: X(327.5), top: Y(424), width: X(33), height: Y(33), background: "#0e3821" }}
+        style={{ left: X(327.5), top: Y(424 + inputOffset), width: X(33), height: Y(33), background: "#0e3821" }}
       >
         <svg viewBox="0 0 24 24" fill="none" style={{ width: "45%", height: "45%" }}>
           <path d="M3 11.5L21 3L13.5 21L11 13L3 11.5Z" fill="white" />
