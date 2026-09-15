@@ -58,8 +58,8 @@ function ParallaxRig({ scrollYProgress }: { scrollYProgress: MotionValue<number>
 
     camera.position.set(
       CAMERA_POS[0] + idleX + mouse.current.x * 0.4,
-      CAMERA_POS[1] + idleY + p * 1.1 + mouse.current.y * 0.15,
-      CAMERA_POS[2] + p * 2.4
+      CAMERA_POS[1] + idleY + p * 3.6 + mouse.current.y * 0.15,
+      CAMERA_POS[2] + p * 7.5
     );
     camera.lookAt(CAMERA_TARGET);
   });

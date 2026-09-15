@@ -12,6 +12,10 @@ export type NotificationItem = {
   delay: number;
 };
 
+// The phone mockup moved up (top 365 -> 310 in the 996-tall hero canvas);
+// shift the cards up by the same amount so they stay scattered around it.
+const PHONE_TOP_SHIFT = 70;
+
 export const notifications: NotificationItem[] = [
   {
     id: "shopee",
@@ -20,7 +24,7 @@ export const notifications: NotificationItem[] = [
     value: "R$ 79,00",
     date: "27 de outubro",
     left: (525 / 1920) * 100,
-    top: (475 / 996) * 100,
+    top: ((475 - PHONE_TOP_SHIFT) / 996) * 100,
     width: (315 / 1920) * 100,
     delay: 0.9,
   },
@@ -31,7 +35,7 @@ export const notifications: NotificationItem[] = [
     value: "R$ 58,00",
     date: "10 de setembro",
     left: (1136 / 1920) * 100,
-    top: (488 / 996) * 100,
+    top: ((488 - PHONE_TOP_SHIFT) / 996) * 100,
     width: (315 / 1920) * 100,
     delay: 1.1,
   },
@@ -42,7 +46,7 @@ export const notifications: NotificationItem[] = [
     value: "R$ 23,00",
     date: "16 de setembro",
     left: (440 / 1920) * 100,
-    top: (698 / 996) * 100,
+    top: ((698 - PHONE_TOP_SHIFT) / 996) * 100,
     width: (315 / 1920) * 100,
     delay: 1.3,
   },
@@ -53,7 +57,7 @@ export const notifications: NotificationItem[] = [
     value: "R$ 345,00",
     date: "9 de outubro",
     left: (1193 / 1920) * 100,
-    top: (793 / 996) * 100,
+    top: ((793 - PHONE_TOP_SHIFT) / 996) * 100,
     width: (315 / 1920) * 100,
     delay: 1.5,
   },

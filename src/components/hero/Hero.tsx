@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { motion, useScroll } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { PhoneChatMockup } from "./PhoneChatMockup";
 import { NotificationCard } from "./NotificationCard";
 import { notifications } from "./notification-data";
@@ -23,6 +23,13 @@ export function Hero() {
   // Avoid mounting a second, hidden WebGL context on mobile (perf/battery).
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
+  // Layered parallax as you scroll past the Hero: text (mid-ground) drifts up
+  // a little, the phone (foreground) drifts up more, the 3D background (in
+  // HillsScene) pans/zooms the least of all — closer layers move faster.
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -60]);
+  const phoneY = useTransform(scrollYProgress, [0, 1], [0, -140]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.9, 1], [1, 1, 0]);
+
   return (
     <section
       ref={sectionRef}
@@ -39,55 +46,57 @@ export function Hero() {
           <Image src="/images/brand/cultiv-logo.png" alt="Cultiv" fill className="object-contain object-left" />
         </div>
 
-        {/* heading */}
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="absolute -translate-x-1/2 text-center font-display font-bold leading-[1.15] text-white"
-          style={{ left: "50%", top: Y(150), width: X(793), fontSize: FS(39) }}
-        >
-          Sua vida financeira muito mais organizada com a Cultiv
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
-          className="absolute -translate-x-1/2 text-center font-display font-light leading-snug text-white/90"
-          style={{ left: "50%", top: Y(280), width: X(600), fontSize: FS(21) }}
-        >
-          Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
-        </motion.p>
+        {/* heading — mid-ground parallax layer */}
+        <motion.div className="absolute inset-0" style={{ y: textY, opacity: heroOpacity }}>
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="absolute -translate-x-1/2 text-center font-display font-bold leading-[1.15] text-white"
+            style={{ left: "50%", top: Y(95), width: X(793), fontSize: FS(39) }}
+          >
+            Sua vida financeira muito mais organizada com a Cultiv
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
+            className="absolute -translate-x-1/2 text-center font-display font-light leading-snug text-white/90"
+            style={{ left: "50%", top: Y(200), width: X(600), fontSize: FS(21) }}
+          >
+            Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
+          </motion.p>
 
-        <motion.button
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.24, ease: "easeOut" }}
-          whileHover={{ y: -3, boxShadow: "-7px 9px 0px 0px black" }}
-          whileTap={{ y: 2, boxShadow: "-2px 3px 0px 0px black" }}
-          className="absolute -translate-x-1/2 rounded-full bg-cultiv-mint font-display font-bold text-[#1e1e1e]"
-          style={{
-            left: "50%",
-            top: Y(378),
-            width: X(422),
-            height: Y(63),
-            fontSize: FS(20),
-            boxShadow: "-5.44px 6.801px 0px 0px black",
-          }}
-        >
-          Teste por 7 dias grátis
-        </motion.button>
+          <motion.button
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.24, ease: "easeOut" }}
+            whileHover={{ y: -3, boxShadow: "-7px 9px 0px 0px black" }}
+            whileTap={{ y: 2, boxShadow: "-2px 3px 0px 0px black" }}
+            className="absolute -translate-x-1/2 rounded-full bg-cultiv-mint font-display font-bold text-[#1e1e1e]"
+            style={{
+              left: "50%",
+              top: Y(285),
+              width: X(422),
+              height: Y(63),
+              fontSize: FS(20),
+              boxShadow: "-5.44px 6.801px 0px 0px black",
+            }}
+          >
+            Teste por 7 dias grátis
+          </motion.button>
+        </motion.div>
 
-        {/* phone + floating notifications */}
-        <div className="absolute" style={{ left: X(726), top: Y(365), width: X(445.5), height: Y(600) }}>
-          <PhoneChatMockup />
-        </div>
+        {/* phone + floating notifications — foreground parallax layer, moves fastest */}
+        <motion.div className="absolute inset-0" style={{ y: phoneY, opacity: heroOpacity }}>
+          <div className="absolute" style={{ left: X(726), top: Y(295), width: X(445.5), height: Y(600) }}>
+            <PhoneChatMockup />
+          </div>
 
-        <div className="absolute inset-0">
           {notifications.map((n) => (
             <NotificationCard key={n.id} item={n} />
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* ---------- MOBILE: stacked layout ---------- */}

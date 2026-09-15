@@ -13,20 +13,22 @@ export function NotificationCard({ item }: { item: NotificationItem }) {
         top: `${item.top}%`,
         width: `${item.width}%`,
         aspectRatio: "315 / 68",
+        willChange: "transform",
       }}
-      initial={{ opacity: 0, y: 24, scale: 0.9 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.7, delay: item.delay, ease: "easeOut" }}
+      // continuous float on the WHOLE card (border, shadow, background included)
+      animate={{ y: [0, -8, 0] }}
+      transition={{
+        duration: 4.5,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay: item.delay + 0.7,
+      }}
     >
       <motion.div
-        className="flex h-full w-full items-center gap-[8%] px-[4.4%]"
-        animate={{ y: [0, -6, 0] }}
-        transition={{
-          duration: 4.5,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: item.delay,
-        }}
+        className="flex h-full w-full items-center gap-[8%] rounded-2xl px-[4.4%]"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.7, delay: item.delay, ease: "easeOut" }}
       >
         <div className="relative aspect-square h-[62%] shrink-0 overflow-hidden rounded-full">
           <Image src={item.icon} alt="" fill sizes="42px" className="object-cover" />

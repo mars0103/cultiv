@@ -30,8 +30,8 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
         />
       </div>
       <p
-        className="absolute font-display text-[12.34cqw] font-bold leading-none text-[#282828]"
-        style={{ left: X(106), top: Y(80) }}
+        className="absolute font-display font-bold leading-none text-[#282828]"
+        style={{ left: X(106), top: Y(80), fontSize: FSX(18) }}
       >
         Flora
       </p>
