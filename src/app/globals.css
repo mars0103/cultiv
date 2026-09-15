@@ -2,25 +2,41 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #121b16;
+
+  /* Cultiv brand tokens */
+  --color-cultiv-forest-dark: #06432d;
+  --color-cultiv-forest: #46a357;
+  --color-cultiv-mint: #c1ffbc;
+  --color-cultiv-accent: #51d98a;
+  --color-cultiv-bubble: #0e3821;
+  --color-cultiv-ink: #121b16;
+  --color-cultiv-title: #24593a;
+  --color-cultiv-muted: #526059;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-unbounded);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-cultiv-forest-dark: var(--color-cultiv-forest-dark);
+  --color-cultiv-forest: var(--color-cultiv-forest);
+  --color-cultiv-mint: var(--color-cultiv-mint);
+  --color-cultiv-accent: var(--color-cultiv-accent);
+  --color-cultiv-bubble: var(--color-cultiv-bubble);
+  --color-cultiv-ink: var(--color-cultiv-ink);
+  --color-cultiv-title: var(--color-cultiv-title);
+  --color-cultiv-muted: var(--color-cultiv-muted);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-unbounded), sans-serif;
 }
