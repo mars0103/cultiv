@@ -2,10 +2,12 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll } from "framer-motion";
 import { PhoneChatMockup } from "./PhoneChatMockup";
 import { NotificationCard } from "./NotificationCard";
 import { notifications } from "./notification-data";
+import { HillsScene } from "./scene3d/HillsScene";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 
 const X = (px: number) => `${((px / 1920) * 100).toFixed(3)}%`;
 const Y = (px: number) => `${((px / 996) * 100).toFixed(3)}%`;
@@ -18,9 +20,8 @@ export function Hero() {
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
-  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+  // Avoid mounting a second, hidden WebGL context on mobile (perf/battery).
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
     <section
@@ -29,20 +30,8 @@ export function Hero() {
     >
       {/* ---------- DESKTOP / TABLET: faithful absolute canvas ---------- */}
       <div className="relative mx-auto hidden w-full md:block" style={{ aspectRatio: "1920 / 996" }}>
-        {/* 3D background with parallax */}
-        <motion.div
-          className="absolute inset-0"
-          style={{ y: bgY, scale: bgScale }}
-        >
-          <Image
-            src="/images/hero/hills-3d.png"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-bottom blur-[1px]"
-          />
-        </motion.div>
+        {/* real-time 3D background (the actual Blender terrain/trees), with scroll parallax */}
+        {isDesktop && <HillsScene scrollYProgress={scrollYProgress} className="absolute inset-0" />}
         <div className="absolute inset-0 bg-gradient-to-t from-[#06432d]/10 via-transparent to-[#06432d]/40" />
 
         {/* logo */}
