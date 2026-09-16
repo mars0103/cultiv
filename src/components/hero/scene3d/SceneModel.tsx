@@ -82,11 +82,28 @@ function Model() {
   return <primitive object={localScene} />;
 }
 
+// The terrain mesh is only ~48x52 units — plenty for the front hero framing,
+// but once the camera pulls up into the top-down "satellite" view its wide
+// fov sees well past that footprint, exposing the mesh's straight edge as a
+// hard-cut square against the sky. A large flat skirt at the same ground
+// level (~y=0, sampled from the terrain's own perimeter vertices) fills
+// everything beyond it with matching color, so it just fog-fades to white
+// like the rest of the scene instead of cutting off.
+function GroundExtension() {
+  return (
+    <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <planeGeometry args={[800, 800]} />
+      <meshStandardMaterial color="#6dbb73" roughness={0.92} metalness={0} />
+    </mesh>
+  );
+}
+
 /** Preloaded GLB (terrain + trees), shared by the Hero canvas and the
  * scroll-driven dissolve canvas so both render identically at the handoff. */
 export function SceneModel() {
   return (
     <Suspense fallback={null}>
+      <GroundExtension />
       <Model />
     </Suspense>
   );

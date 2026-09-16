@@ -15,27 +15,39 @@ const Y = (px: number) => `${((px / 996) * 100).toFixed(3)}%`;
 const FS = (px: number) => `${((px / 1920) * 100).toFixed(3)}vw`;
 
 export function Hero() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: progress } = useScroll({
+    target: wrapperRef,
+    offset: ["start start", "end end"],
   });
+
   // Avoid mounting a second, hidden WebGL context on mobile (perf/battery).
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  // Layered parallax as you scroll past the Hero: text (mid-ground) drifts up
-  // a little, the phone (foreground) drifts up more, the 3D background (in
-  // HillsScene) pans/zooms the least of all — closer layers move faster.
-  const textY = useTransform(scrollYProgress, [0, 1], [0, -60]);
-  const phoneY = useTransform(scrollYProgress, [0, 1], [0, -140]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.9, 1], [1, 1, 0]);
+  // One continuous story across the whole pin: hold on the resting hero,
+  // then the copy fades away while the camera lifts into a top-down view
+  // and the scene dissolves to white (camera/fog handled inside HillsScene,
+  // driven by this same `progress`) — the phone alone stays put and just
+  // shrinks a touch, so it reads as the same phone carrying into the steps
+  // section right below, no separate section or notes-flying transition.
+  // NOTE: plain array-range useTransform(value, [in], [out]) has a bug in the
+  // installed framer-motion version where the DOM style stops tracking the
+  // motion value correctly once the input passes the clamp boundary (it
+  // drifts back up instead of staying at the clamped output) — the function
+  // form below computes the clamp itself and doesn't hit that bug.
+  const clampedLerp = (p: number, start: number, end: number, from: number, to: number) =>
+    from + (to - from) * Math.min(1, Math.max(0, (p - start) / (end - start)));
+  const contentOpacity = useTransform(progress, (p) => clampedLerp(p, 0.12, 0.38, 1, 0));
+  const contentY = useTransform(progress, (p) => clampedLerp(p, 0.12, 0.4, 0, -30));
+  const phoneScale = useTransform(progress, (p) => clampedLerp(p, 0.25, 1, 1, 0.6));
+  const overlayOpacity = useTransform(progress, (p) => clampedLerp(p, 0.55, 0.95, 0, 1));
 
   // Mouse-hover parallax: layers shift sideways with the cursor, foreground
-  // (phone) more than mid-ground (text) — same "closer = faster" depth cue.
+  // (phone) more than mid-ground (text) — "closer = faster" depth cue.
   const rawMouseX = useMotionValue(0);
   const mouseX = useSpring(rawMouseX, { stiffness: 55, damping: 14, mass: 0.4 });
-  const textMouseX = useTransform(mouseX, [-1, 1], [-8, 8]);
-  const phoneMouseX = useTransform(mouseX, [-1, 1], [-22, 22]);
+  const textMouseX = useTransform(mouseX, (m) => m * 8);
+  const phoneMouseX = useTransform(mouseX, (m) => m * 22);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -44,73 +56,88 @@ export function Hero() {
   const handleMouseLeave = () => rawMouseX.set(0);
 
   return (
-    <section
-      ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative w-full overflow-hidden bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9]"
-    >
-      {/* ---------- DESKTOP / TABLET: faithful absolute canvas ---------- */}
-      <div className="relative mx-auto hidden w-full md:block" style={{ aspectRatio: "1920 / 996" }}>
-        {/* real-time 3D background (the actual Blender terrain/trees), with scroll parallax */}
-        {isDesktop && <HillsScene scrollYProgress={scrollYProgress} className="absolute inset-0" />}
+    <section ref={wrapperRef} className="relative w-full md:h-[260vh]">
+      {/* ---------- DESKTOP / TABLET: pinned hero that dissolves into the steps ---------- */}
+      <div
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="sticky top-0 hidden h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9] md:flex"
+      >
+        {/* real-time 3D background (the actual Blender terrain/trees), fills the whole pinned viewport */}
+        {isDesktop && <HillsScene progress={progress} className="absolute inset-0" />}
 
-        {/* logo */}
-        <div className="absolute" style={{ left: X(86), top: Y(70), width: X(226), height: Y(55) }}>
-          <Image src="/images/brand/logo escura.svg" alt="Cultiv" fill className="object-contain object-left" />
-        </div>
+        {/* white dissolve wash, above the scene, below the UI */}
+        <motion.div className="pointer-events-none absolute inset-0 bg-white" style={{ opacity: overlayOpacity }} />
 
-        {/* heading — mid-ground parallax layer */}
-        <motion.div className="absolute inset-0" style={{ y: textY, x: textMouseX, opacity: heroOpacity }}>
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="absolute -translate-x-1/2 text-center font-title font-bold leading-[1.15] text-[#0d3b25]"
-            style={{ left: "50%", top: Y(95), width: X(793), fontSize: FS(39) }}
-          >
-            Sua vida financeira muito mais organizada com a Cultiv
-          </motion.p>
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
-            className="absolute -translate-x-1/2 text-center font-subtitle leading-snug text-cultiv-title"
-            style={{ left: "50%", top: Y(200), width: X(600), fontSize: FS(21) }}
-          >
-            Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
-          </motion.p>
-
-          <motion.button
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.24, ease: "easeOut" }}
-            whileHover={{ y: -3, boxShadow: "-7px 9px 0px 0px black" }}
-            whileTap={{ y: 2, boxShadow: "-2px 3px 0px 0px black" }}
-            className="absolute -translate-x-1/2 rounded-full bg-cultiv-mint font-display font-bold text-[#1e1e1e]"
-            style={{
-              left: "50%",
-              top: Y(285),
-              width: X(422),
-              height: Y(63),
-              fontSize: FS(20),
-              boxShadow: "-5.44px 6.801px 0px 0px black",
-            }}
-          >
-            Teste por 7 dias grátis
-          </motion.button>
-        </motion.div>
-
-        {/* phone + floating notifications — foreground parallax layer, moves fastest */}
-        <motion.div className="absolute inset-0" style={{ y: phoneY, x: phoneMouseX, opacity: heroOpacity }}>
-          <div className="absolute" style={{ left: X(726), top: Y(295), width: X(445.5), height: Y(600) }}>
-            <PhoneChatMockup />
+        {/* UI overlay: the original 1920x996 design grid, centered and never
+            overflowing the pinned viewport in either dimension */}
+        <div className="relative w-full" style={{ aspectRatio: "1920 / 996", width: "min(100%, 192.77vh)" }}>
+          {/* logo — stays put as a brand anchor through the whole dissolve */}
+          <div className="absolute" style={{ left: X(86), top: Y(70), width: X(226), height: Y(55) }}>
+            <Image src="/images/brand/logo escura.svg" alt="Cultiv" fill className="object-contain object-left" />
           </div>
 
-          {notifications.map((n) => (
-            <NotificationCard key={n.id} item={n} />
-          ))}
-        </motion.div>
+          {/* heading, subtitle, button, notifications — all fade away together */}
+          <motion.div className="absolute inset-0" style={{ y: contentY, x: textMouseX, opacity: contentOpacity }}>
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="absolute -translate-x-1/2 text-center font-title font-bold leading-[1.15] text-[#0d3b25]"
+              style={{ left: "50%", top: Y(95), width: X(793), fontSize: FS(39) }}
+            >
+              Sua vida financeira muito mais organizada com a Cultiv
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
+              className="absolute -translate-x-1/2 text-center font-subtitle leading-snug text-cultiv-title"
+              style={{ left: "50%", top: Y(200), width: X(600), fontSize: FS(21) }}
+            >
+              Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
+            </motion.p>
+
+            <motion.button
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.24, ease: "easeOut" }}
+              whileHover={{ y: -3, boxShadow: "-7px 9px 0px 0px black" }}
+              whileTap={{ y: 2, boxShadow: "-2px 3px 0px 0px black" }}
+              className="absolute -translate-x-1/2 rounded-full bg-cultiv-mint font-display font-bold text-[#1e1e1e]"
+              style={{
+                left: "50%",
+                top: Y(285),
+                width: X(422),
+                height: Y(63),
+                fontSize: FS(20),
+                boxShadow: "-5.44px 6.801px 0px 0px black",
+              }}
+            >
+              Teste por 7 dias grátis
+            </motion.button>
+
+            {notifications.map((n) => (
+              <NotificationCard key={n.id} item={n} />
+            ))}
+          </motion.div>
+
+          {/* phone — the persistent element: never fades, only shrinks a touch
+              as the scene dissolves, carrying visually into the steps below */}
+          <motion.div
+            className="absolute"
+            style={{
+              left: X(726),
+              top: Y(295),
+              width: X(445.5),
+              height: Y(600),
+              scale: phoneScale,
+              x: phoneMouseX,
+            }}
+          >
+            <PhoneChatMockup />
+          </motion.div>
+        </div>
       </div>
 
       {/* ---------- MOBILE: stacked layout ---------- */}
