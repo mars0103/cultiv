@@ -150,7 +150,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.25 }}
               className="bg-white shadow-sm"
-              style={{ width: X(84), height: FSX(62), borderRadius: bubbleRadius("bl") }}
+              style={{ width: X(84), height: FSX(46), borderRadius: bubbleRadius("bl") }}
             >
               <TypingDots />
             </motion.div>
@@ -212,9 +212,9 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
         className="absolute overflow-hidden"
         style={{
           left: X(26),
-          top: Y(370 + inputOffset),
+          top: Y(378 + inputOffset),
           width: X(337),
-          height: Y(48),
+          height: Y(38),
           maskImage: "linear-gradient(to right, black 92%, transparent 100%)",
         }}
       >
@@ -228,7 +228,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
             <div
               key={i}
               className="flex shrink-0 items-center justify-center whitespace-nowrap rounded-full"
-              style={{ background: "#51d98a", height: FSX(48), paddingLeft: X(18), paddingRight: X(18) }}
+              style={{ background: "#51d98a", height: FSX(38), paddingLeft: X(18), paddingRight: X(18) }}
             >
               <p className="font-display font-light leading-none text-[#252525]" style={{ fontSize: FSX(10) }}>
                 {ex.q}
