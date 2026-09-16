@@ -46,6 +46,116 @@ function makeBumpTexture() {
   return tex;
 }
 
+// Bank icon glyph (a small institution/columns silhouette) drawn straight
+// onto a transparent canvas — used as the decal texture on each bank
+// token's face plane, so the icon is real geometry-mapped content instead
+// of a DOM overlay, and correctly foreshortens with the scene's perspective.
+function makeBankIconTexture() {
+  const size = 256;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#4c5c52";
+  const s = size / 24;
+  ctx.beginPath();
+  ctx.moveTo(12 * s, 3.5 * s);
+  ctx.lineTo(3.2 * s, 9 * s);
+  ctx.lineTo(20.8 * s, 9 * s);
+  ctx.closePath();
+  ctx.fill();
+  const colX = [4.4, 8.5, 12.6, 16.7];
+  for (const cx of colX) {
+    ctx.fillRect(cx * s, 10 * s, 2.1 * s, 8.6 * s);
+  }
+  ctx.fillRect(3 * s, 19.4 * s, 18 * s, 2 * s);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+function makeLabelTexture(text: string) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 128;
+  const ctx = canvas.getContext("2d")!;
+  ctx.font = "800 74px Inter, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  // white text with a soft dark outline reads clearly against the mint
+  // pedestal (a flat dark-green fill nearly disappeared into it).
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = "rgba(13,59,37,0.55)";
+  ctx.strokeText(text, canvas.width / 2, canvas.height / 2 + 4);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2 + 4);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// Matches the 2D NotificationCard's layout (icon circle + title/value on
+// one line, date beneath) baked into a single decal texture instead of a
+// DOM element, so it sits as real, perspective-correct content on the 3D
+// card mesh's face.
+async function makeNotifTexture(icon: string, title: string, value: string, date: string) {
+  const w = 630, h = 136;
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d")!;
+  const img = await loadImage(icon).catch(() => null);
+
+  const cy = h / 2;
+  const r = 44;
+  const cx = r + 14;
+  if (img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2);
+    ctx.restore();
+  }
+
+  const textX = cx + r + 26;
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "#526059";
+  ctx.font = "700 34px Inter, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText(title, textX, cy - 4);
+  ctx.textAlign = "right";
+  ctx.fillText(value, w - 24, cy - 4);
+  ctx.font = "400 28px Inter, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText(date, textX, cy + 34);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+const BANK_LABELS: Record<string, string> = {
+  "01": "Conta 01",
+  "02": "Conta 02",
+  "03": "Conta 03",
+};
+
+const NOTIF_CONTENT: Record<string, { icon: string; title: string; value: string; date: string }> = {
+  Alimentacao: { icon: "/images/hero/ellipse-ifood.png", title: "Alimentação", value: "R$ 58,00", date: "10 de setembro" },
+  Transporte: { icon: "/images/hero/ellipse-uber.png", title: "Transporte", value: "R$ 23,00", date: "16 de setembro" },
+};
+
 // The terrain's Blender material drives its color via a procedural node graph
 // (noise texture -> color ramp -> bump) that glTF's PBR export can't carry
 // over, so it comes back flat/gray. Swap it for a hand-tuned equivalent —
@@ -54,6 +164,7 @@ function makeBumpTexture() {
 function Model() {
   const { scene } = useGLTF("/models/cenario-colinas.glb");
   const bumpTex = useMemo(() => makeBumpTexture(), []);
+  const bankIconTex = useMemo(() => makeBankIconTexture(), []);
 
   // useGLTF caches and returns the SAME scene graph across every call site,
   // so the Hero canvas and the scroll-dissolve canvas would otherwise fight
@@ -67,7 +178,9 @@ function Model() {
       if (!(obj instanceof THREE.Mesh)) return;
       obj.castShadow = true;
       obj.receiveShadow = true;
-      if (obj.name.toLowerCase().includes("terreno")) {
+
+      const name = obj.name;
+      if (name.toLowerCase().includes("terreno")) {
         obj.material = new THREE.MeshStandardMaterial({
           color: "#6dbb73",
           roughness: 0.92,
@@ -75,9 +188,52 @@ function Model() {
           bumpMap: bumpTex,
           bumpScale: 0.012,
         });
+        return;
+      }
+
+      const bankFaceMatch = name.match(/^BankToken_(\d+)_Face$/);
+      if (bankFaceMatch) {
+        obj.material = new THREE.MeshBasicMaterial({ map: bankIconTex, transparent: true, side: THREE.DoubleSide });
+        return;
+      }
+
+      const bankLabelMatch = name.match(/^BankToken_(\d+)_Label$/);
+      if (bankLabelMatch) {
+        const label = BANK_LABELS[bankLabelMatch[1]] ?? `Conta ${bankLabelMatch[1]}`;
+        obj.material = new THREE.MeshBasicMaterial({
+          map: makeLabelTexture(label),
+          transparent: true,
+          side: THREE.DoubleSide,
+        });
+        return;
+      }
+
+      const notifFaceMatch = name.match(/^NotifCard_(\w+)_Face$/);
+      if (notifFaceMatch) {
+        const content = NOTIF_CONTENT[notifFaceMatch[1]];
+        if (content) {
+          const mat = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide });
+          obj.material = mat;
+          makeNotifTexture(content.icon, content.title, content.value, content.date).then((tex) => {
+            mat.map = tex;
+            mat.needsUpdate = true;
+          });
+        }
+        return;
+      }
+
+      // "Open Finance" wires — force the glow client-side rather than trust
+      // the glTF round-trip of Blender's emission strength.
+      if (name.startsWith("Wire_")) {
+        obj.material = new THREE.MeshStandardMaterial({
+          color: "#eafcd0",
+          emissive: "#daffb0",
+          emissiveIntensity: 2.2,
+          roughness: 0.4,
+        });
       }
     });
-  }, [localScene, bumpTex]);
+  }, [localScene, bumpTex, bankIconTex]);
 
   return <primitive object={localScene} />;
 }

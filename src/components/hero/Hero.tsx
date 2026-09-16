@@ -4,10 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import { ChatScreen, PhoneChatMockup } from "./PhoneChatMockup";
-import { NotificationCard } from "./NotificationCard";
 import { notifications } from "./notification-data";
-import { BankToken } from "./BankToken";
-import { ConnectionLines } from "./ConnectionLines";
 import { HillsScene } from "./scene3d/HillsScene";
 import { PhoneFrame } from "@/components/phone/PhoneFrame";
 import { SignupScreen } from "@/components/steps/PhoneScreens";
@@ -17,12 +14,6 @@ const X = (px: number) => `${((px / 1920) * 100).toFixed(3)}%`;
 const Y = (px: number) => `${((px / 996) * 100).toFixed(3)}%`;
 /** The canvas is full viewport width (no max-width), so vw maps 1:1 to canvas %. */
 const FS = (px: number) => `${((px / 1920) * 100).toFixed(3)}vw`;
-
-// Reuse the existing icon/title/value/date from the shared notification data
-// (kept intact for the mobile layout and the steps section), just repainted
-// at new positions along the bank connection wires.
-const ifoodNotification = notifications.find((n) => n.id === "ifood")!;
-const uberNotification = notifications.find((n) => n.id === "uber")!;
 
 export function Hero() {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -219,17 +210,10 @@ export function Hero() {
               Teste por 7 dias grátis
             </motion.button>
 
-            {/* "connected world": Open Finance bank tokens sitting on the
-                hills, glowing wires running into the phone, and just the
-                two notifications that sit along those wires — swaps out
-                the old scattered-card layout for a single cohesive scene
-                instead of empty hills + a floating phone. */}
-            <ConnectionLines />
-            <BankToken left={X(490)} top={Y(345)} size={FS(84)} label="Conta 01" delay={0.5} />
-            <BankToken left={X(1515)} top={Y(418)} size={FS(84)} label="Conta 02" delay={0.75} />
-            <BankToken left={X(311)} top={Y(620)} size={FS(84)} label="Conta 03" delay={1.0} />
-            <NotificationCard item={{ ...ifoodNotification, left: 20.4, top: 59.3 }} />
-            <NotificationCard item={{ ...uberNotification, left: 67.1, top: 63.5 }} />
+            {/* the "connected world" (bank tokens, glowing wires, the two
+                notification cards) now lives inside the 3D scene itself —
+                real geometry on the hills in HillsScene/SceneModel, not a
+                DOM overlay, so it has real perspective and depth. */}
 
             <motion.div
               className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-3 rounded-full bg-white py-2 pr-5 pl-2 shadow-[0_8px_20px_rgba(13,59,37,0.18)]"
