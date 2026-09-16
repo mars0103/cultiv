@@ -36,7 +36,7 @@ export function NotesIntro() {
           <Image src="/images/notes/nota-50.png" alt="" width={600} height={281} className="h-auto w-full drop-shadow-xl" />
         </motion.div>
 
-        <p className="relative z-10 mx-auto max-w-4xl px-6 text-center font-display text-3xl font-bold text-cultiv-ink sm:text-4xl md:text-[52px] md:leading-[1.15]">
+        <p className="relative z-10 mx-auto max-w-4xl px-6 text-center font-title text-3xl font-bold text-cultiv-ink sm:text-4xl md:text-[52px] md:leading-[1.15]">
           {words.map((w, i) => {
             const start = 0.1 + (i / words.length) * 0.55;
             const end = start + 0.08;

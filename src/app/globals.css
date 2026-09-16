@@ -19,8 +19,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
-  --font-display: var(--font-unbounded);
-  --font-subtitle: var(--font-raleway);
+  --font-title: var(--font-syne);
 
   --color-cultiv-forest-dark: var(--color-cultiv-forest-dark);
   --color-cultiv-forest: var(--color-cultiv-forest);
@@ -38,10 +37,15 @@ body {
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
 }
 
-.font-display {
-  font-family: var(--font-unbounded), sans-serif;
+/* Real headings/titles use Syne. */
+.font-title {
+  font-family: var(--font-syne), sans-serif;
 }
 
+/* Everything else (buttons, labels, mockup UI chrome, body copy) is Inter —
+ * kept as separate classes so call sites don't need to change, but both now
+ * just resolve to the body's default Inter. */
+.font-display,
 .font-subtitle {
-  font-family: var(--font-raleway), sans-serif;
+  font-family: var(--font-inter), sans-serif;
 }

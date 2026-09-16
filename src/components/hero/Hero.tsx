@@ -67,7 +67,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="absolute -translate-x-1/2 text-center font-display font-bold leading-[1.15] text-white"
+            className="absolute -translate-x-1/2 text-center font-title font-bold leading-[1.15] text-white"
             style={{ left: "50%", top: Y(95), width: X(793), fontSize: FS(39) }}
           >
             Sua vida financeira muito mais organizada com a Cultiv
@@ -137,7 +137,7 @@ export function Hero() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center font-display text-[28px] font-bold leading-tight text-white"
+          className="text-center font-title text-[28px] font-bold leading-tight text-white"
         >
           Sua vida financeira muito mais organizada com a Cultiv
         </motion.h1>

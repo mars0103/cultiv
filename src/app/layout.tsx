@@ -1,23 +1,17 @@
 import type { Metadata } from "next";
-import { Unbounded, Inter, Raleway } from "next/font/google";
+import { Syne, Inter } from "next/font/google";
 import "./globals.css";
 
-const unbounded = Unbounded({
-  variable: "--font-unbounded",
+const syne = Syne({
+  variable: "--font-syne",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
+  weight: ["600", "700", "800"],
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
-const raleway = Raleway({
-  variable: "--font-raleway",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -30,7 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${unbounded.variable} ${inter.variable} ${raleway.variable} h-full antialiased`}
+      className={`${syne.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white">{children}</body>
     </html>

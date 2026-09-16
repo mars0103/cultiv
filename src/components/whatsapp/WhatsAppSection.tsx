@@ -12,7 +12,7 @@ export function WhatsAppSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="mx-auto max-w-4xl text-center font-display text-2xl font-bold text-cultiv-ink md:text-[39px]"
+        className="mx-auto max-w-4xl text-center font-title text-2xl font-bold text-cultiv-ink md:text-[39px]"
       >
         Para sua comodidade, você também pode entender suas finanças, anotar gastos... tudo pelo whatsapp
       </motion.h2>

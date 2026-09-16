@@ -68,10 +68,10 @@ export function StepsShowcase() {
                 exit={{ opacity: 0, y: -16 }}
                 transition={{ duration: 0.4 }}
               >
-                <p className="font-display text-[90px] font-bold leading-none text-cultiv-accent md:text-[120px]">
+                <p className="font-title text-[90px] font-bold leading-none text-cultiv-accent md:text-[120px]">
                   {active.n}
                 </p>
-                <h2 className="mt-2 font-display text-2xl font-bold text-cultiv-ink md:text-4xl">
+                <h2 className="mt-2 font-title text-2xl font-bold text-cultiv-ink md:text-4xl">
                   {active.title}
                 </h2>
                 <p className="mt-4 max-w-md font-subtitle text-base text-cultiv-title md:text-lg">{active.desc}</p>

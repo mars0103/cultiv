@@ -31,7 +31,7 @@ export function LGPDSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="font-display text-2xl font-bold text-cultiv-ink md:text-[39px]"
+        className="font-title text-2xl font-bold text-cultiv-ink md:text-[39px]"
       >
         Seus dados nunca ficam com a gente
       </motion.h2>

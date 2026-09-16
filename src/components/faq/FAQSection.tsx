@@ -32,7 +32,7 @@ export function FAQSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="text-center font-display text-2xl font-bold text-cultiv-ink md:text-[39px]"
+        className="text-center font-title text-2xl font-bold text-cultiv-ink md:text-[39px]"
       >
         Perguntas frequentes
       </motion.h2>
