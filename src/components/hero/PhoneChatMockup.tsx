@@ -89,7 +89,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
       {/* header */}
       <div
         className="absolute overflow-hidden rounded-full bg-white"
-        style={{ left: X(51), top: Y(74), width: X(48), height: Y(48) }}
+        style={{ left: X(51), top: Y(74), width: X(48), height: FSX(48) }}
       >
         <Image src="/images/hero/flora-avatar.png" alt="Flora" fill sizes="48px" className="scale-90 object-contain" />
       </div>
@@ -109,12 +109,12 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
         <span
           key={l}
           className="absolute rounded-full bg-[#282828]"
-          style={{ left: X(l), top: Y(89), width: X(3), height: Y(3) }}
+          style={{ left: X(l), top: Y(89), width: X(3), height: FSX(3) }}
         />
       ))}
       <div
         className="absolute flex items-center justify-center overflow-hidden rounded-full bg-white shadow-sm"
-        style={{ left: X(17), top: Y(82), width: X(29), height: Y(29) }}
+        style={{ left: X(17), top: Y(82), width: X(29), height: FSX(29) }}
       >
         <Image
           src="/images/hero/chevron-back.svg"
@@ -127,14 +127,14 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
       </div>
       <div
         className="absolute rounded-full"
-        style={{ left: X(85), top: Y(114), width: X(8), height: Y(8), background: "#51d98a" }}
+        style={{ left: X(85), top: Y(114), width: X(8), height: FSX(8), background: "#51d98a" }}
       />
       <div className="absolute bg-[#e3e7e5]" style={{ left: 0, top: Y(139), width: "100%", height: 1 }} />
 
       {/* Flora avatar next to the reply slot */}
       <div
         className="absolute overflow-hidden rounded-full bg-white"
-        style={{ left: X(28), top: Y(290), width: X(37.7), height: Y(37.7) }}
+        style={{ left: X(28), top: Y(290), width: X(37.7), height: FSX(37.7) }}
       >
         <Image src="/images/hero/flora-avatar.png" alt="" fill sizes="38px" className="scale-90 object-contain" />
       </div>
@@ -150,7 +150,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.25 }}
               className="bg-white shadow-sm"
-              style={{ width: X(84), height: Y(62), borderRadius: bubbleRadius("bl") }}
+              style={{ width: X(84), height: FSX(62), borderRadius: bubbleRadius("bl") }}
             >
               <TypingDots />
             </motion.div>
@@ -165,8 +165,8 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
               style={{
                 width: X(268),
                 borderRadius: bubbleRadius("bl"),
-                paddingTop: Y(16),
-                paddingBottom: Y(16),
+                paddingTop: FSX(16),
+                paddingBottom: FSX(16),
                 paddingLeft: X(18),
                 paddingRight: X(18),
               }}
@@ -191,8 +191,8 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
             className="ml-auto w-fit max-w-full bg-[#0e3821]"
             style={{
               borderRadius: bubbleRadius("br"),
-              paddingTop: Y(15),
-              paddingBottom: Y(15),
+              paddingTop: FSX(15),
+              paddingBottom: FSX(15),
               paddingLeft: X(20),
               paddingRight: X(20),
             }}
@@ -228,7 +228,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
             <div
               key={i}
               className="flex shrink-0 items-center justify-center whitespace-nowrap rounded-full"
-              style={{ background: "#51d98a", height: Y(48), paddingLeft: X(18), paddingRight: X(18) }}
+              style={{ background: "#51d98a", height: FSX(48), paddingLeft: X(18), paddingRight: X(18) }}
             >
               <p className="font-display font-light leading-none text-[#252525]" style={{ fontSize: FSX(10) }}>
                 {ex.q}
@@ -241,7 +241,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
       {/* input bar */}
       <div
         className="absolute flex items-center justify-center rounded-full bg-white"
-        style={{ left: X(28), top: Y(424 + inputOffset), width: X(33), height: Y(33) }}
+        style={{ left: X(28), top: Y(424 + inputOffset), width: X(33), height: FSX(33) }}
       >
         <p className="font-display font-light text-[#686868]" style={{ fontSize: FSX(17) }}>
           +
@@ -249,7 +249,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
       </div>
       <div
         className="absolute flex items-center rounded-full bg-white"
-        style={{ left: X(76.2), top: Y(424 + inputOffset), width: X(236), height: Y(33), paddingLeft: X(14) }}
+        style={{ left: X(76.2), top: Y(424 + inputOffset), width: X(236), height: FSX(33), paddingLeft: X(14) }}
       >
         <p className="font-subtitle text-[#c7c7c7]" style={{ fontSize: FSX(10.5) }}>
           Pergunte à flora...
@@ -257,7 +257,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
       </div>
       <div
         className="absolute flex items-center justify-center rounded-full"
-        style={{ left: X(327.5), top: Y(424 + inputOffset), width: X(33), height: Y(33), background: "#0e3821" }}
+        style={{ left: X(327.5), top: Y(424 + inputOffset), width: X(33), height: FSX(33), background: "#0e3821" }}
       >
         <svg viewBox="0 0 24 24" fill="none" style={{ width: "45%", height: "45%" }}>
           <path d="M3 11.5L21 3L13.5 21L11 13L3 11.5Z" fill="white" />
