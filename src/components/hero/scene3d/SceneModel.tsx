@@ -58,6 +58,10 @@ function makeBankIconTexture() {
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
+  // Same back-facing-plane quirk noted on the label/bezel textures — pre-flip
+  // to compensate (see makeLabelTexture for the full explanation).
+  ctx.translate(canvas.width, canvas.height);
+  ctx.scale(-1, -1);
   ctx.fillStyle = "#5fa46c";
   const s = size / 24;
   ctx.beginPath();
@@ -83,8 +87,11 @@ function makeLabelTexture(text: string) {
   const ctx = canvas.getContext("2d")!;
   // The label plane's true front (per its Blender rotation) ends up facing
   // away from the camera, so DoubleSide shows its back — which mirrors the
-  // texture horizontally. Pre-mirroring the draw cancels that out instead
-  // of chasing the exact rotation math.
+  // texture horizontally. Pre-mirroring the draw cancels that out. (Tried
+  // the bank icon's full 180° flip here too since both planes share the
+  // same rotation — it actually made the text read upside down, so despite
+  // the identical rotation these two evidently end up with different UV
+  // winding; horizontal-only is what's empirically correct for this one.)
   ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
   ctx.font = "800 74px Inter, sans-serif";
@@ -141,19 +148,10 @@ async function makeMirroredTexture(src: string) {
  * when DissolveRig's camera fov starts widening for the dissolve. The
  * bezel's screen-lock only compensates for camera position, not fov, so the
  * crossfade has to be done before fov drifts or the two visibly separate. */
-function PhoneBezelFade({ root, progress }: { root: THREE.Object3D; progress: MotionValue<number> }) {
-  const material = useMemo<THREE.MeshStandardMaterial | null>(() => {
-    let found: THREE.MeshStandardMaterial | null = null;
-    root.traverse((obj) => {
-      if (obj.name === "Phone3D_Bezel" && obj instanceof THREE.Mesh) {
-        found = obj.material as THREE.MeshStandardMaterial;
-      }
-    });
-    return found;
-  }, [root]);
+export function PhoneBezelFade({ bezel, progress }: { bezel: THREE.Object3D; progress: MotionValue<number> }) {
+  const material = (bezel as THREE.Mesh).material as THREE.MeshStandardMaterial;
 
   useFrame(() => {
-    if (!material) return;
     const p = progress.get();
     const fadeOut = Math.min(1, Math.max(0, (p - 0.05) / 0.07));
     material.opacity = 1 - fadeOut;
@@ -209,7 +207,13 @@ function PulseMarkers({ root }: { root: THREE.Object3D }) {
 // height-based vertex-color gradient (baked in Blender: light green ridges,
 // forest green valleys) plus a very subtle bump — while keeping the tree
 // materials (simple flat colors, already correct) exactly as exported.
-function Model({ progress }: { progress: MotionValue<number> }) {
+function Model({
+  progress,
+  onBezelFound,
+}: {
+  progress: MotionValue<number>;
+  onBezelFound: (bezel: THREE.Object3D) => void;
+}) {
   const { scene } = useGLTF("/models/cenario-colinas.glb");
   const bumpTex = useMemo(() => makeBumpTexture(), []);
   const bankIconTex = useMemo(() => makeBankIconTexture(), []);
@@ -222,6 +226,8 @@ function Model({ progress }: { progress: MotionValue<number> }) {
   const localScene = useMemo(() => scene.clone(true), [scene]);
 
   useMemo(() => {
+    const bezelRef: { current: THREE.Object3D | null } = { current: null };
+
     localScene.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return;
       obj.castShadow = true;
@@ -275,6 +281,9 @@ function Model({ progress }: { progress: MotionValue<number> }) {
           mat.color.set("#ffffff");
           mat.needsUpdate = true;
         });
+        // Defer detaching until after this traverse finishes — mutating
+        // obj.parent's children mid-traversal risks skipping siblings.
+        bezelRef.current = obj;
         return;
       }
 
@@ -292,13 +301,24 @@ function Model({ progress }: { progress: MotionValue<number> }) {
         obj.castShadow = false;
       }
     });
-  }, [localScene, bumpTex, bankIconTex]);
+
+    // The bezel needs to be a real React child of the camera (see
+    // HillsScene's <PerspectiveCamera>) so it stays screen-locked — an
+    // R3F <primitive> that's part of this cloned scene gets its parent
+    // reset by R3F's own reconciliation on the next re-render if something
+    // (e.g. camera.attach()) moves it outside the declared tree. Detaching
+    // it here and handing it to the parent via callback keeps it inside
+    // React's own tree instead of fighting that reconciliation.
+    if (bezelRef.current) {
+      bezelRef.current.removeFromParent();
+      onBezelFound(bezelRef.current);
+    }
+  }, [localScene, bumpTex, bankIconTex, onBezelFound]);
 
   return (
     <>
       <primitive object={localScene} />
       <PulseMarkers root={localScene} />
-      <PhoneBezelFade root={localScene} progress={progress} />
     </>
   );
 }
@@ -321,11 +341,17 @@ function GroundExtension() {
 
 /** Preloaded GLB (terrain + trees), shared by the Hero canvas and the
  * scroll-driven dissolve canvas so both render identically at the handoff. */
-export function SceneModel({ progress }: { progress: MotionValue<number> }) {
+export function SceneModel({
+  progress,
+  onBezelFound,
+}: {
+  progress: MotionValue<number>;
+  onBezelFound: (bezel: THREE.Object3D) => void;
+}) {
   return (
     <Suspense fallback={null}>
       <GroundExtension />
-      <Model progress={progress} />
+      <Model progress={progress} onBezelFound={onBezelFound} />
     </Suspense>
   );
 }

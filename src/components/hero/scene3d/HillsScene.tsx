@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { PerspectiveCamera } from "@react-three/drei";
 import type { MotionValue } from "framer-motion";
 import * as THREE from "three";
-import { SceneModel, SceneLights, b2t } from "./SceneModel";
+import { SceneModel, SceneLights, PhoneBezelFade, b2t } from "./SceneModel";
 
 export const CAMERA_POS = b2t(-2, -16, 1.6);
 export const CAMERA_TARGET = new THREE.Vector3(...b2t(0, 10, 0.6));
@@ -16,6 +17,12 @@ const END_POS: [number, number, number] = [0, 46, 8];
 const END_TARGET = new THREE.Vector3(0, 0, 6);
 const START_FOG_COLOR = new THREE.Color("#bfe6c4");
 const END_FOG_COLOR = new THREE.Color("#ffffff");
+
+// The phone bezel's position relative to the camera, once it's rendered as
+// an actual child of <PerspectiveCamera> below — captured empirically by
+// measuring where camera.attach() placed it at rest, expressed as a fixed
+// local offset instead of computed at runtime.
+const PHONE_BEZEL_LOCAL_POS: [number, number, number] = [-0.0205, -0.6468, -5.0436];
 
 /**
  * Drives the whole Hero-to-steps handoff from a single scroll progress value
@@ -34,19 +41,8 @@ function DissolveRig({ progress }: { progress: MotionValue<number> }) {
   const mouse = useRef({ x: 0, y: 0 });
   const pos = useRef(new THREE.Vector3());
   const target = useRef(new THREE.Vector3());
-  const phoneBezelAttached = useRef(false);
 
   useFrame((state) => {
-    // Screen-locking the bezel by translating it to counter the camera's
-    // own position offset (an earlier attempt) isn't enough: camera.lookAt
-    // below also gives the camera a slightly different ROTATION every frame
-    // as its position idles/sways, and at the very short distance the phone
-    // sits from the camera, even that tiny rotational wobble reads as the
-    // bezel visibly swimming apart from the (perfectly static) DOM screen
-    // content layered on top of it. Making it an actual child of the camera
-    // — once — inherits the camera's full transform automatically, position
-    // AND rotation, so it's rigidly screen-locked no matter what the camera
-    // does.
     t.current += state.clock.getDelta();
     const p = progress.get();
     // The dissolve itself only starts once the hero copy begins fading
@@ -70,17 +66,6 @@ function DissolveRig({ progress }: { progress: MotionValue<number> }) {
     camera.position.copy(pos.current);
     camera.lookAt(target.current);
 
-    // Attach only after the camera's position/rotation are settled for this
-    // frame, so the bezel's captured local offset is relative to its
-    // intended resting pose, not a transient one from mid-setup.
-    if (!phoneBezelAttached.current) {
-      const found = scene.getObjectByName("Phone3D_Bezel");
-      if (found) {
-        camera.attach(found);
-        phoneBezelAttached.current = true;
-      }
-    }
-
     const cam = camera as THREE.PerspectiveCamera;
     cam.fov = THREE.MathUtils.lerp(26, 62, ease);
     cam.updateProjectionMatrix();
@@ -102,17 +87,24 @@ export function HillsScene({
   progress: MotionValue<number>;
   className?: string;
 }) {
+  // The bezel is loaded as part of the GLB (so it shares materials/pipeline
+  // with the rest of the scene), but it needs to live under <PerspectiveCamera>
+  // as a real React child to stay screen-locked — mutating its parent
+  // imperatively (camera.attach()) fought against R3F's own reconciliation
+  // of this declarative tree and got silently undone on a later re-render.
+  // SceneModel hands it up here once its GLB traversal finds it.
+  const [phoneBezel, setPhoneBezel] = useState<THREE.Object3D | null>(null);
+
   return (
     <div className={className}>
-      <Canvas
-        gl={{ alpha: true, antialias: true }}
-        camera={{ position: CAMERA_POS, fov: 26, near: 0.5, far: 140 }}
-        dpr={[1, 1.75]}
-        shadows="soft"
-      >
+      <Canvas gl={{ alpha: true, antialias: true }} dpr={[1, 1.75]} shadows="soft">
         <fog attach="fog" args={["#bfe6c4", 22, 58]} />
         <SceneLights />
-        <SceneModel progress={progress} />
+        <SceneModel progress={progress} onBezelFound={setPhoneBezel} />
+        <PerspectiveCamera makeDefault position={CAMERA_POS} fov={26} near={0.5} far={140}>
+          {phoneBezel && <primitive object={phoneBezel} position={PHONE_BEZEL_LOCAL_POS} />}
+        </PerspectiveCamera>
+        {phoneBezel && <PhoneBezelFade bezel={phoneBezel} progress={progress} />}
         <DissolveRig progress={progress} />
       </Canvas>
     </div>
