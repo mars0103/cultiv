@@ -1,4 +1,5 @@
 import { Hero } from "@/components/hero/Hero";
+import { SceneDissolve } from "@/components/hero/SceneDissolve";
 import { NotesIntro } from "@/components/steps/NotesIntro";
 import { StepsShowcase } from "@/components/steps/StepsShowcase";
 import { WhatsAppSection } from "@/components/whatsapp/WhatsAppSection";
@@ -11,6 +12,7 @@ export default function Home() {
   return (
     <main className="flex flex-1 flex-col">
       <Hero />
+      <SceneDissolve />
       <NotesIntro />
       <StepsShowcase />
       <WhatsAppSection />
