@@ -131,80 +131,81 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
       />
       <div className="absolute bg-[#e3e7e5]" style={{ left: 0, top: Y(139), width: "100%", height: 1 }} />
 
-      {/* Flora avatar next to the reply slot */}
-      <div
-        className="absolute overflow-hidden rounded-full bg-white"
-        style={{ left: X(28), top: Y(290), width: X(37.7), height: FSX(37.7) }}
-      >
-        <Image src="/images/hero/flora-avatar.png" alt="" fill sizes="38px" className="scale-90 object-contain" />
-      </div>
-
-      {/* reply slot: typing indicator <-> answer bubble */}
-      <div className="absolute" style={{ left: X(74.9), top: Y(225), width: X(280), minHeight: Y(90) }}>
-        <AnimatePresence mode="wait">
-          {phase === "typing" ? (
+      {/* message stack: normal flow (flex + gap) so spacing/alignment stay
+       * correct regardless of how tall each bubble's content is */}
+      <div className="absolute flex flex-col" style={{ left: X(28), top: Y(178), width: X(333), gap: FSX(16) }}>
+        {/* user question bubble */}
+        <div className="flex justify-end">
+          <AnimatePresence mode="wait">
             <motion.div
-              key="typing"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.25 }}
-              className="bg-white shadow-sm"
-              style={{ width: X(84), height: FSX(46), borderRadius: bubbleRadius("bl") }}
-            >
-              <TypingDots />
-            </motion.div>
-          ) : phase === "answer" ? (
-            <motion.div
-              key={`answer-${round}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              key={`q-${round}`}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-white p-0 shadow-sm"
+              className="w-fit max-w-[78%] bg-[#0e3821]"
               style={{
-                width: X(268),
-                borderRadius: bubbleRadius("bl"),
-                paddingTop: FSX(16),
-                paddingBottom: FSX(16),
+                borderRadius: bubbleRadius("br"),
+                paddingTop: FSX(12),
+                paddingBottom: FSX(12),
                 paddingLeft: X(18),
                 paddingRight: X(18),
               }}
             >
-              <p className="font-subtitle leading-snug text-[#686868]" style={{ fontSize: FSX(13) }}>
-                {exchange.a}
+              <p className="text-right font-subtitle leading-snug text-white" style={{ fontSize: FSX(11.5) }}>
+                {exchange.q}
               </p>
             </motion.div>
-          ) : null}
-        </AnimatePresence>
-      </div>
+          </AnimatePresence>
+        </div>
 
-      {/* user question bubble */}
-      <div className="absolute" style={{ left: X(70), top: Y(180), width: X(296) }}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`q-${round}`}
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="ml-auto w-fit max-w-full bg-[#0e3821]"
-            style={{
-              borderRadius: bubbleRadius("br"),
-              paddingTop: FSX(15),
-              paddingBottom: FSX(15),
-              paddingLeft: X(20),
-              paddingRight: X(20),
-            }}
+        {/* Flora avatar + reply, bottom-aligned so the avatar sits level
+         * with the bubble regardless of its height (typing vs. answer) */}
+        <div className="flex items-end" style={{ gap: X(10) }}>
+          <div
+            className="relative shrink-0 overflow-hidden rounded-full bg-white"
+            style={{ width: X(37.7), height: FSX(37.7) }}
           >
-            <p
-              className="text-right font-subtitle leading-snug text-white"
-              style={{ fontSize: FSX(12.5) }}
-            >
-              {exchange.q}
-            </p>
-          </motion.div>
-        </AnimatePresence>
+            <Image src="/images/hero/flora-avatar.png" alt="" fill sizes="38px" className="scale-90 object-contain" />
+          </div>
+
+          <AnimatePresence mode="wait">
+            {phase === "typing" ? (
+              <motion.div
+                key="typing"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.25 }}
+                className="bg-white shadow-sm"
+                style={{ width: X(72), height: FSX(38), borderRadius: bubbleRadius("bl") }}
+              >
+                <TypingDots />
+              </motion.div>
+            ) : phase === "answer" ? (
+              <motion.div
+                key={`answer-${round}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white p-0 shadow-sm"
+                style={{
+                  width: X(258),
+                  borderRadius: bubbleRadius("bl"),
+                  paddingTop: FSX(13),
+                  paddingBottom: FSX(13),
+                  paddingLeft: X(16),
+                  paddingRight: X(16),
+                }}
+              >
+                <p className="font-subtitle leading-snug text-[#686868]" style={{ fontSize: FSX(11.5) }}>
+                  {exchange.a}
+                </p>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* suggestion pills — auto-scrolling carousel, so labels stay full size */}
