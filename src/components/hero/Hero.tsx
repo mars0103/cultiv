@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { PhoneChatMockup } from "./PhoneChatMockup";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
+import { ChatScreen, PhoneChatMockup } from "./PhoneChatMockup";
 import { NotificationCard } from "./NotificationCard";
 import { notifications } from "./notification-data";
 import { HillsScene } from "./scene3d/HillsScene";
+import { PhoneFrame } from "@/components/phone/PhoneFrame";
+import { SignupScreen } from "@/components/steps/PhoneScreens";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 
 const X = (px: number) => `${((px / 1920) * 100).toFixed(3)}%`;
@@ -16,6 +18,9 @@ const FS = (px: number) => `${((px / 1920) * 100).toFixed(3)}vw`;
 
 export function Hero() {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const aspectBoxRef = useRef<HTMLDivElement>(null);
+  const endGhostRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: progress } = useScroll({
     target: wrapperRef,
     offset: ["start start", "end end"],
@@ -27,9 +32,16 @@ export function Hero() {
   // One continuous story across the whole pin: hold on the resting hero,
   // then the copy fades away while the camera lifts into a top-down view
   // and the scene dissolves to white (camera/fog handled inside HillsScene,
-  // driven by this same `progress`) — the phone alone stays put and just
-  // shrinks a touch, so it reads as the same phone carrying into the steps
-  // section right below, no separate section or notes-flying transition.
+  // driven by this same `progress`). The phone itself is the throughline:
+  // it switches from the chat screen to the signup screen and slides into
+  // the exact spot/size where the steps section's own phone sits, then
+  // Hero DWELLS there — showing step "01" itself, fully — before unpinning.
+  // That matters because two adjacent sticky-pinned sections can't hand off
+  // at the same instant (the outgoing one has to scroll a full viewport off
+  // before the next can engage); if both sides showed the same phone across
+  // that gap it read as two overlapping phones. Ending Hero on ITS OWN
+  // step-01, and starting the steps section at "02", makes that unavoidable
+  // gap a normal (different-content) scroll transition instead.
   // NOTE: plain array-range useTransform(value, [in], [out]) has a bug in the
   // installed framer-motion version where the DOM style stops tracking the
   // motion value correctly once the input passes the clamp boundary (it
@@ -37,20 +49,110 @@ export function Hero() {
   // form below computes the clamp itself and doesn't hit that bug.
   const clampedLerp = (p: number, start: number, end: number, from: number, to: number) =>
     from + (to - from) * Math.min(1, Math.max(0, (p - start) / (end - start)));
-  const contentOpacity = useTransform(progress, (p) => clampedLerp(p, 0.12, 0.38, 1, 0));
-  const contentY = useTransform(progress, (p) => clampedLerp(p, 0.12, 0.4, 0, -30));
-  const phoneScale = useTransform(progress, (p) => clampedLerp(p, 0.25, 1, 1, 0.6));
-  const overlayOpacity = useTransform(progress, (p) => clampedLerp(p, 0.55, 0.95, 0, 1));
+  const contentOpacity = useTransform(progress, (p) => clampedLerp(p, 0.1, 0.3, 1, 0));
+  const contentY = useTransform(progress, (p) => clampedLerp(p, 0.1, 0.32, 0, -30));
+  const overlayOpacity = useTransform(progress, (p) => clampedLerp(p, 0.42, 0.7, 0, 1));
+  const dwellOpacity = useTransform(progress, (p) => clampedLerp(p, 0.68, 0.85, 0, 1));
+
+  const [showStepScreen, setShowStepScreen] = useState(false);
+  useMotionValueEvent(progress, "change", (p) => setShowStepScreen(p > 0.48));
+
+  // The phone's start rect is computed analytically from the same X()/Y()
+  // percentages used for its old static position (726/1920, 295/996,
+  // 445.5/1920, 600/996) against the live size of the 1920x996 UI box. The
+  // end rect is measured off an invisible clone of the steps section's own
+  // phone slot (same classes, so it tracks that layout exactly, including
+  // its sm:/md: responsive width) — both measured relative to the sticky
+  // container, which is what the animated phone is positioned against.
+  const phoneRectsRef = useRef({
+    start: { left: 0, top: 0, width: 0 },
+    end: { left: 0, top: 0, width: 0 },
+  });
+
+  useEffect(() => {
+    function measure() {
+      const sticky = stickyRef.current;
+      const box = aspectBoxRef.current;
+      const ghost = endGhostRef.current;
+      if (!sticky || !box || !ghost) return;
+      const stickyRect = sticky.getBoundingClientRect();
+      const boxRect = box.getBoundingClientRect();
+      const ghostRect = ghost.getBoundingClientRect();
+      phoneRectsRef.current = {
+        start: {
+          left: boxRect.left - stickyRect.left + (726 / 1920) * boxRect.width,
+          top: boxRect.top - stickyRect.top + (295 / 996) * boxRect.height,
+          width: (445.5 / 1920) * boxRect.width,
+        },
+        end: {
+          left: ghostRect.left - stickyRect.left,
+          top: ghostRect.top - stickyRect.top,
+          width: ghostRect.width,
+        },
+      };
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const phoneLeft = useTransform(progress, (p) => {
+    const e = clampedLerp(p, 0.5, 0.78, 0, 1);
+    const { start, end } = phoneRectsRef.current;
+    return `${start.left + (end.left - start.left) * e}px`;
+  });
+  const phoneTop = useTransform(progress, (p) => {
+    const e = clampedLerp(p, 0.5, 0.78, 0, 1);
+    const { start, end } = phoneRectsRef.current;
+    return `${start.top + (end.top - start.top) * e}px`;
+  });
+  const phoneWidth = useTransform(progress, (p) => {
+    const e = clampedLerp(p, 0.5, 0.78, 0, 1);
+    const { start, end } = phoneRectsRef.current;
+    return `${start.width + (end.width - start.width) * e}px`;
+  });
 
   return (
-    <section ref={wrapperRef} className="relative w-full md:h-[260vh]">
+    <section ref={wrapperRef} className="relative w-full md:h-[300vh]">
       {/* ---------- DESKTOP / TABLET: pinned hero that dissolves into the steps ---------- */}
-      <div className="sticky top-0 hidden h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9] md:flex">
+      <div
+        ref={stickyRef}
+        className="sticky top-0 hidden h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9] md:flex"
+      >
         {/* real-time 3D background (the actual Blender terrain/trees), fills the whole pinned viewport */}
         {isDesktop && <HillsScene progress={progress} className="absolute inset-0" />}
 
         {/* white dissolve wash, above the scene, below the UI */}
         <motion.div className="pointer-events-none absolute inset-0 bg-white" style={{ opacity: overlayOpacity }} />
+
+        {/* Step "01" content: same grid classes as the steps section's own
+            layout (so the phone slot below measures out to exactly where
+            that section will show its phone), but rendered here for real —
+            this is Hero owning its own dwell on step 01, not a placeholder. */}
+        <div className="pointer-events-none absolute inset-0 flex items-center">
+          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-2 md:gap-16">
+            <motion.div className="order-2 md:order-1" style={{ opacity: dwellOpacity }}>
+              <p className="font-title text-[90px] font-bold leading-none text-cultiv-accent md:text-[120px]">01</p>
+              <h2 className="mt-2 font-title text-2xl font-bold text-cultiv-ink md:text-4xl">
+                Crie sua conta em segundos
+              </h2>
+              <p className="mt-4 max-w-md font-subtitle text-base text-cultiv-title md:text-lg">
+                Cadastro simples, confirmado direto pelo WhatsApp — sem burocracia.
+              </p>
+              <div className="mt-8 flex gap-2">
+                <span className="h-1.5 w-8 rounded-full bg-cultiv-accent" />
+                <span className="h-1.5 w-4 rounded-full bg-gray-200" />
+                <span className="h-1.5 w-4 rounded-full bg-gray-200" />
+                <span className="h-1.5 w-4 rounded-full bg-gray-200" />
+              </div>
+            </motion.div>
+            {/* invisible measurement stub — the actual phone is a separate,
+                independently animated element sliding into this slot */}
+            <div ref={endGhostRef} className="relative order-1 mx-auto w-[220px] sm:w-[260px] md:order-2 md:w-[300px] opacity-0">
+              <div className="w-full" style={{ aspectRatio: "445.488 / 972.675" }} />
+            </div>
+          </div>
+        </div>
 
         {/* UI overlay: the original 1920x996 design grid, centered and never
             overflowing the pinned viewport in either dimension. Pointer
@@ -58,6 +160,7 @@ export function Hero() {
             it (that's what drives the background parallax) — re-enabled
             only on the button below, which needs its own hover/tap. */}
         <div
+          ref={aspectBoxRef}
           className="pointer-events-none relative w-full"
           style={{ aspectRatio: "1920 / 996", width: "min(100%, 192.77vh)" }}
         >
@@ -110,22 +213,51 @@ export function Hero() {
               <NotificationCard key={n.id} item={n} />
             ))}
           </motion.div>
-
-          {/* phone — the persistent element: never fades, only shrinks a touch
-              as the scene dissolves, carrying visually into the steps below */}
-          <motion.div
-            className="absolute"
-            style={{
-              left: X(726),
-              top: Y(295),
-              width: X(445.5),
-              height: Y(600),
-              scale: phoneScale,
-            }}
-          >
-            <PhoneChatMockup />
-          </motion.div>
         </div>
+
+        {/* phone — the throughline element: positioned in pixels against the
+            sticky container (not the 1920x996 UI grid above) so it can slide
+            from its hero spot into the exact rect the steps section's own
+            phone occupies, switching from the chat screen to the signup
+            screen just before it starts moving. Never two phones on screen —
+            this is the only one, all the way through the handoff. */}
+        <motion.div
+          className="absolute"
+          style={{
+            left: phoneLeft,
+            top: phoneTop,
+            width: phoneWidth,
+            aspectRatio: "445.488 / 972.675",
+          }}
+        >
+          <AnimatePresence>
+            {showStepScreen ? (
+              <motion.div
+                key="signup"
+                className="absolute inset-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { duration: 0.2 } }}
+                exit={{ opacity: 0, transition: { duration: 0.2 } }}
+              >
+                <PhoneFrame>
+                  <SignupScreen />
+                </PhoneFrame>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="chat"
+                className="absolute inset-0"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1, transition: { duration: 0.7, delay: 0.5, ease: "easeOut" } }}
+                exit={{ opacity: 0, transition: { duration: 0.2 } }}
+              >
+                <PhoneFrame>
+                  <ChatScreen />
+                </PhoneFrame>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       {/* ---------- MOBILE: stacked layout ---------- */}

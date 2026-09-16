@@ -4,17 +4,17 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { PhoneFrame } from "@/components/phone/PhoneFrame";
-import { SignupScreen, OpenFinanceScreen, HomeScreen } from "./PhoneScreens";
+import { OpenFinanceScreen, HomeScreen } from "./PhoneScreens";
 import { ChatScreen } from "@/components/hero/PhoneChatMockup";
 import { notifications } from "@/components/hero/notification-data";
 
+// Step "01" (create account) is the Hero's own scroll-dissolve landing —
+// it dwells there, already showing this exact copy/phone, before handing
+// off here. Starting this section's own steps at "02" keeps that handoff a
+// same-vs-same boundary from Hero's side (its own hold) and a
+// different-content transition into this section, instead of both sides
+// showing an identical phone across the sticky-to-sticky scroll gap.
 const STEPS = [
-  {
-    n: "01",
-    title: "Crie sua conta em segundos",
-    desc: "Cadastro simples, confirmado direto pelo WhatsApp — sem burocracia.",
-    Screen: SignupScreen,
-  },
   {
     n: "02",
     title: "Conecte seu banco com segurança",
@@ -78,12 +78,15 @@ export function StepsShowcase() {
               </motion.div>
             </AnimatePresence>
 
+            {/* 4 dots total (step "01" is Hero's own dwell, not tracked in
+                STEPS here) so the dot count stays consistent across the
+                Hero -> steps handoff instead of jumping from 4 to 3. */}
             <div className="mt-8 flex gap-2">
-              {STEPS.map((s, i) => (
+              {[0, 1, 2, 3].map((i) => (
                 <span
-                  key={s.n}
+                  key={i}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === step ? "w-8 bg-cultiv-accent" : "w-4 bg-gray-200"
+                    i === step + 1 ? "w-8 bg-cultiv-accent" : "w-4 bg-gray-200"
                   }`}
                 />
               ))}
@@ -105,7 +108,7 @@ export function StepsShowcase() {
               </motion.div>
             </AnimatePresence>
 
-            {step === 2 && (
+            {step === 1 && (
               <div className="pointer-events-none absolute inset-0 hidden lg:block">
                 {notifications.slice(0, 4).map((n, i) => (
                   <motion.div
