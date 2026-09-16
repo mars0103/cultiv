@@ -34,20 +34,19 @@ function DissolveRig({ progress }: { progress: MotionValue<number> }) {
   const mouse = useRef({ x: 0, y: 0 });
   const pos = useRef(new THREE.Vector3());
   const target = useRef(new THREE.Vector3());
-  const cameraRest = useRef(new THREE.Vector3(...CAMERA_POS));
-  const phoneBezel = useRef<THREE.Object3D | null>(null);
-  const phoneBezelBase = useRef(new THREE.Vector3());
-  const phoneBezelFound = useRef(false);
+  const phoneBezelAttached = useRef(false);
 
   useFrame((state) => {
-    if (!phoneBezelFound.current) {
-      const found = scene.getObjectByName("Phone3D_Bezel");
-      if (found) {
-        phoneBezel.current = found;
-        phoneBezelBase.current.copy(found.position);
-        phoneBezelFound.current = true;
-      }
-    }
+    // Screen-locking the bezel by translating it to counter the camera's
+    // own position offset (an earlier attempt) isn't enough: camera.lookAt
+    // below also gives the camera a slightly different ROTATION every frame
+    // as its position idles/sways, and at the very short distance the phone
+    // sits from the camera, even that tiny rotational wobble reads as the
+    // bezel visibly swimming apart from the (perfectly static) DOM screen
+    // content layered on top of it. Making it an actual child of the camera
+    // — once — inherits the camera's full transform automatically, position
+    // AND rotation, so it's rigidly screen-locked no matter what the camera
+    // does.
     t.current += state.clock.getDelta();
     const p = progress.get();
     // The dissolve itself only starts once the hero copy begins fading
@@ -71,13 +70,15 @@ function DissolveRig({ progress }: { progress: MotionValue<number> }) {
     camera.position.copy(pos.current);
     camera.lookAt(target.current);
 
-    // The phone bezel sits right in front of the camera and must stay
-    // screen-locked like the DOM chat content layered over it (which has no
-    // idea the camera just panned) — so it rides along with the exact same
-    // idle/mouse/dissolve offset the camera just got, instead of parallaxing
-    // against it like the hills and bank stations do.
-    if (phoneBezel.current) {
-      phoneBezel.current.position.copy(phoneBezelBase.current).add(pos.current).sub(cameraRest.current);
+    // Attach only after the camera's position/rotation are settled for this
+    // frame, so the bezel's captured local offset is relative to its
+    // intended resting pose, not a transient one from mid-setup.
+    if (!phoneBezelAttached.current) {
+      const found = scene.getObjectByName("Phone3D_Bezel");
+      if (found) {
+        camera.attach(found);
+        phoneBezelAttached.current = true;
+      }
     }
 
     const cam = camera as THREE.PerspectiveCamera;
