@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { PhoneChatMockup } from "./PhoneChatMockup";
 import { NotificationCard } from "./NotificationCard";
 import { notifications } from "./notification-data";
@@ -42,27 +42,10 @@ export function Hero() {
   const phoneScale = useTransform(progress, (p) => clampedLerp(p, 0.25, 1, 1, 0.6));
   const overlayOpacity = useTransform(progress, (p) => clampedLerp(p, 0.55, 0.95, 0, 1));
 
-  // Mouse-hover parallax: layers shift sideways with the cursor, foreground
-  // (phone) more than mid-ground (text) — "closer = faster" depth cue.
-  const rawMouseX = useMotionValue(0);
-  const mouseX = useSpring(rawMouseX, { stiffness: 55, damping: 14, mass: 0.4 });
-  const textMouseX = useTransform(mouseX, (m) => m * 8);
-  const phoneMouseX = useTransform(mouseX, (m) => m * 22);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    rawMouseX.set(((e.clientX - rect.left) / rect.width - 0.5) * 2);
-  };
-  const handleMouseLeave = () => rawMouseX.set(0);
-
   return (
     <section ref={wrapperRef} className="relative w-full md:h-[260vh]">
       {/* ---------- DESKTOP / TABLET: pinned hero that dissolves into the steps ---------- */}
-      <div
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className="sticky top-0 hidden h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9] md:flex"
-      >
+      <div className="sticky top-0 hidden h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9] md:flex">
         {/* real-time 3D background (the actual Blender terrain/trees), fills the whole pinned viewport */}
         {isDesktop && <HillsScene progress={progress} className="absolute inset-0" />}
 
@@ -70,15 +53,21 @@ export function Hero() {
         <motion.div className="pointer-events-none absolute inset-0 bg-white" style={{ opacity: overlayOpacity }} />
 
         {/* UI overlay: the original 1920x996 design grid, centered and never
-            overflowing the pinned viewport in either dimension */}
-        <div className="relative w-full" style={{ aspectRatio: "1920 / 996", width: "min(100%, 192.77vh)" }}>
+            overflowing the pinned viewport in either dimension. Pointer
+            events pass through so mouse movement reaches the canvas behind
+            it (that's what drives the background parallax) — re-enabled
+            only on the button below, which needs its own hover/tap. */}
+        <div
+          className="pointer-events-none relative w-full"
+          style={{ aspectRatio: "1920 / 996", width: "min(100%, 192.77vh)" }}
+        >
           {/* logo — stays put as a brand anchor through the whole dissolve */}
           <div className="absolute" style={{ left: X(86), top: Y(70), width: X(226), height: Y(55) }}>
             <Image src="/images/brand/logo escura.svg" alt="Cultiv" fill className="object-contain object-left" />
           </div>
 
           {/* heading, subtitle, button, notifications — all fade away together */}
-          <motion.div className="absolute inset-0" style={{ y: contentY, x: textMouseX, opacity: contentOpacity }}>
+          <motion.div className="absolute inset-0" style={{ y: contentY, opacity: contentOpacity }}>
             <motion.p
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
@@ -104,7 +93,7 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 0.24, ease: "easeOut" }}
               whileHover={{ y: -3, boxShadow: "-7px 9px 0px 0px black" }}
               whileTap={{ y: 2, boxShadow: "-2px 3px 0px 0px black" }}
-              className="absolute -translate-x-1/2 rounded-full bg-cultiv-mint font-display font-bold text-[#1e1e1e]"
+              className="pointer-events-auto absolute -translate-x-1/2 rounded-full bg-cultiv-mint font-display font-bold text-[#1e1e1e]"
               style={{
                 left: "50%",
                 top: Y(285),
@@ -132,7 +121,6 @@ export function Hero() {
               width: X(445.5),
               height: Y(600),
               scale: phoneScale,
-              x: phoneMouseX,
             }}
           >
             <PhoneChatMockup />

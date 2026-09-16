@@ -23,6 +23,10 @@ const END_FOG_COLOR = new THREE.Color("#ffffff");
  * parallax while at rest, then the camera lerps up into the satellite view
  * as the surrounding hero copy fades away (see Hero.tsx), fog and fov
  * lerping along with it so it reads as one continuous camera move.
+ *
+ * The mouse parallax lives entirely here, on the background camera — the
+ * phone/text overlay in Hero.tsx stays put so the hover reads as "the
+ * background shifts to peek around it", not the UI sliding on top of it.
  */
 function DissolveRig({ progress }: { progress: MotionValue<number> }) {
   const { camera, scene } = useThree();
@@ -43,12 +47,12 @@ function DissolveRig({ progress }: { progress: MotionValue<number> }) {
 
     const idleX = Math.sin(t.current * 0.15) * 0.15 * idleAmount;
     const idleY = Math.cos(t.current * 0.18) * 0.06 * idleAmount;
-    mouse.current.x += (state.pointer.x - mouse.current.x) * 0.02;
-    mouse.current.y += (state.pointer.y - mouse.current.y) * 0.02;
+    mouse.current.x += (state.pointer.x - mouse.current.x) * 0.08;
+    mouse.current.y += (state.pointer.y - mouse.current.y) * 0.08;
 
     pos.current.set(
-      THREE.MathUtils.lerp(CAMERA_POS[0], END_POS[0], ease) + idleX + mouse.current.x * 0.4 * idleAmount,
-      THREE.MathUtils.lerp(CAMERA_POS[1], END_POS[1], ease) + idleY + mouse.current.y * 0.15 * idleAmount,
+      THREE.MathUtils.lerp(CAMERA_POS[0], END_POS[0], ease) + idleX + mouse.current.x * 4.5 * idleAmount,
+      THREE.MathUtils.lerp(CAMERA_POS[1], END_POS[1], ease) + idleY + mouse.current.y * 1.6 * idleAmount,
       THREE.MathUtils.lerp(CAMERA_POS[2], END_POS[2], ease)
     );
     target.current.lerpVectors(CAMERA_TARGET, END_TARGET, ease);
