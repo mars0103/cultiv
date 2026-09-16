@@ -26,7 +26,7 @@ export const notifications: NotificationItem[] = [
     left: (525 / 1920) * 100,
     top: ((475 - PHONE_TOP_SHIFT) / 996) * 100,
     width: (315 / 1920) * 100,
-    delay: 0.9,
+    delay: 0.6,
   },
   {
     id: "ifood",
@@ -37,7 +37,7 @@ export const notifications: NotificationItem[] = [
     left: (1136 / 1920) * 100,
     top: ((488 - PHONE_TOP_SHIFT) / 996) * 100,
     width: (315 / 1920) * 100,
-    delay: 1.1,
+    delay: 1.15,
   },
   {
     id: "uber",
@@ -48,7 +48,7 @@ export const notifications: NotificationItem[] = [
     left: (440 / 1920) * 100,
     top: ((698 - PHONE_TOP_SHIFT) / 996) * 100,
     width: (315 / 1920) * 100,
-    delay: 1.3,
+    delay: 1.7,
   },
   {
     id: "airbnb",
@@ -59,6 +59,6 @@ export const notifications: NotificationItem[] = [
     left: (1193 / 1920) * 100,
     top: ((793 - PHONE_TOP_SHIFT) / 996) * 100,
     width: (315 / 1920) * 100,
-    delay: 1.5,
+    delay: 2.25,
   },
 ];

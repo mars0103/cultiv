@@ -20,6 +20,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
   --font-display: var(--font-unbounded);
+  --font-subtitle: var(--font-raleway);
 
   --color-cultiv-forest-dark: var(--color-cultiv-forest-dark);
   --color-cultiv-forest: var(--color-cultiv-forest);
@@ -39,4 +40,8 @@ body {
 
 .font-display {
   font-family: var(--font-unbounded), sans-serif;
+}
+
+.font-subtitle {
+  font-family: var(--font-raleway), sans-serif;
 }

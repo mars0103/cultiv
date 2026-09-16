@@ -1,33 +1,97 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
-/** All positions are percentages relative to the 389x826 chat-screen design box. */
-const pct = (px: number, basis: number) => `${((px / basis) * 100).toFixed(2)}%`;
+/** All positions are percentages relative to the 389x826 chat-screen design box
+ * (matches the Figma "TELA CHAT" frame 1:1). */
+const pct = (px: number, basis: number) => `${((px / basis) * 100).toFixed(3)}%`;
 const X = (px: number) => pct(px, 389);
 const Y = (px: number) => pct(px, 826);
 /** Font-size needs container-relative units (cqw), since % resolves against
  * the parent's font-size, not the box width. Requires container-type on the root. */
-const FSX = (px: number) => `${((px / 389) * 100).toFixed(2)}cqw`;
+const FSX = (px: number) => `${((px / 389) * 100).toFixed(3)}cqw`;
+
+type Exchange = { q: string; a: string };
+
+const SCRIPT: Exchange[] = [
+  {
+    q: "Flora, quanto gastei esse mês?",
+    a: "Neste mês (setembro de 2026) você gastou um total de R$ 456,00. Está indo bem esse mês, se precisar de mais alguma coisa é só dizer 😊",
+  },
+  {
+    q: "Resumo dos gastos",
+    a: "Alimentação R$ 180, Transporte R$ 95, Compras R$ 140 — no total, R$ 415 esse mês 📊",
+  },
+  {
+    q: "Como estão minhas finanças?",
+    a: "Estão indo bem! Você guardou 24% da sua renda esse mês 🌱",
+  },
+  {
+    q: "Qual meu saldo este mês?",
+    a: "Seu saldo atual é R$ 1.240,00 💰",
+  },
+];
+
+const BUBBLE_RADIUS = FSX(16);
+const BUBBLE_TAIL = FSX(5);
+const bubbleRadius = (tailCorner: "bl" | "br") =>
+  tailCorner === "bl"
+    ? `${BUBBLE_RADIUS} ${BUBBLE_RADIUS} ${BUBBLE_RADIUS} ${BUBBLE_TAIL}`
+    : `${BUBBLE_RADIUS} ${BUBBLE_RADIUS} ${BUBBLE_TAIL} ${BUBBLE_RADIUS}`;
+
+const QUESTION_HOLD = 900;
+const TYPING_HOLD = 1500;
+const ANSWER_HOLD = 3800;
+
+function useConversation() {
+  const [round, setRound] = useState(0);
+  const [phase, setPhase] = useState<"question" | "typing" | "answer">("question");
+
+  useEffect(() => {
+    const delay = phase === "question" ? QUESTION_HOLD : phase === "typing" ? TYPING_HOLD : ANSWER_HOLD;
+    const id = window.setTimeout(() => {
+      if (phase === "question") setPhase("typing");
+      else if (phase === "typing") setPhase("answer");
+      else {
+        setRound((r) => (r + 1) % SCRIPT.length);
+        setPhase("question");
+      }
+    }, delay);
+    return () => window.clearTimeout(id);
+  }, [phase, round]);
+
+  return { exchange: SCRIPT[round], phase, round };
+}
+
+function TypingDots() {
+  return (
+    <div className="flex h-full items-center gap-[6%] px-[8%]">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="rounded-full bg-[#a9b3ae]"
+          style={{ width: FSX(6), height: FSX(6) }}
+          animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
+  const { exchange, phase, round } = useConversation();
+
   return (
-    <div
-      className="relative h-full w-full overflow-hidden rounded-[12.34%] bg-[#f4f6f5] [container-type:inline-size]"
-    >
+    <div className="relative h-full w-full overflow-hidden rounded-[12.34%] bg-[#f4f6f5] [container-type:inline-size]">
       {/* header */}
       <div
         className="absolute overflow-hidden rounded-full bg-white"
         style={{ left: X(51), top: Y(74), width: X(48), height: Y(48) }}
       >
-        <Image
-          src="/images/hero/flora-avatar.png"
-          alt="Flora"
-          fill
-          sizes="48px"
-          className="scale-125 object-contain"
-        />
+        <Image src="/images/hero/flora-avatar.png" alt="Flora" fill sizes="48px" className="scale-125 object-contain" />
       </div>
       <p
         className="absolute font-display font-bold leading-none text-[#282828]"
@@ -36,7 +100,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
         Flora
       </p>
       <p
-        className="absolute font-display font-light leading-tight text-[#282828]"
+        className="absolute font-subtitle font-normal leading-tight text-[#282828]"
         style={{ left: X(106), top: Y(102), width: X(199), fontSize: FSX(10) }}
       >
         Vê seus dados até hoje, 16:31
@@ -49,89 +113,145 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
         />
       ))}
       <div
-        className="absolute overflow-hidden rounded-full bg-white shadow-sm"
+        className="absolute flex items-center justify-center overflow-hidden rounded-full bg-white shadow-sm"
         style={{ left: X(17), top: Y(82), width: X(29), height: Y(29) }}
-      />
+      >
+        <Image
+          src="/images/hero/chevron-back.svg"
+          alt=""
+          width={6}
+          height={10}
+          className="-scale-x-100"
+          style={{ width: FSX(4.7), height: "auto" }}
+        />
+      </div>
       <div
         className="absolute rounded-full"
         style={{ left: X(85), top: Y(114), width: X(8), height: Y(8), background: "#51d98a" }}
       />
       <div className="absolute bg-[#e3e7e5]" style={{ left: 0, top: Y(139), width: "100%", height: 1 }} />
 
-      {/* flora response bubble */}
+      {/* Flora avatar next to the reply slot */}
       <div
         className="absolute overflow-hidden rounded-full bg-white"
         style={{ left: X(28), top: Y(290), width: X(37.7), height: Y(37.7) }}
       >
-        <Image
-          src="/images/hero/flora-avatar.png"
-          alt=""
-          fill
-          sizes="38px"
-          className="scale-125 object-contain"
-        />
+        <Image src="/images/hero/flora-avatar.png" alt="" fill sizes="38px" className="scale-125 object-contain" />
       </div>
-      <div
-        className="absolute rounded-tl-[7%] rounded-tr-[7%] rounded-br-[7%] rounded-bl-[1.5%] bg-white shadow-sm"
-        style={{ left: X(74.9), top: Y(239), width: X(243.9), height: Y(76) }}
-      />
-      <p
-        className="absolute font-display leading-snug text-[#686868]"
-        style={{ left: X(94), top: Y(247), width: X(194), fontSize: FSX(10) }}
-      >
-        Neste mês (setembro de 2026) você gastou um total de R$ 456,00. Está indo bem esse
-        mês se precisar de mais alguma coisa, é só dizer 😊
-      </p>
 
-      {/* user message */}
-      <div
-        className="absolute rounded-tl-[7%] rounded-tr-[7%] rounded-bl-[7%] rounded-br-[1.5%]"
-        style={{ left: X(175), top: Y(195), width: X(191.4), height: Y(32), background: "#0e3821" }}
-      />
-      <p
-        className="absolute text-right font-display font-light leading-snug text-white"
-        style={{ left: X(183.7), top: Y(204), width: X(175), fontSize: FSX(9.5) }}
-      >
-        Flora, quanto gastei esse mês?
-      </p>
+      {/* reply slot: typing indicator <-> answer bubble */}
+      <div className="absolute" style={{ left: X(74.9), top: Y(230), width: X(260), minHeight: Y(76) }}>
+        <AnimatePresence mode="wait">
+          {phase === "typing" ? (
+            <motion.div
+              key="typing"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.25 }}
+              className="bg-white shadow-sm"
+              style={{ width: X(74), height: Y(42), borderRadius: bubbleRadius("bl") }}
+            >
+              <TypingDots />
+            </motion.div>
+          ) : phase === "answer" ? (
+            <motion.div
+              key={`answer-${round}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white p-0 shadow-sm"
+              style={{
+                width: X(248),
+                borderRadius: bubbleRadius("bl"),
+                paddingTop: Y(15),
+                paddingBottom: Y(15),
+                paddingLeft: X(17),
+                paddingRight: X(17),
+              }}
+            >
+              <p className="font-subtitle leading-snug text-[#686868]" style={{ fontSize: FSX(10.5) }}>
+                {exchange.a}
+              </p>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </div>
 
-      {/* suggestion pills */}
-      {[
-        { left: 28, top: 391 + inputOffset, w: 108.5, label: "Resumo dos gastos" },
-        { left: 141.3, top: 391 + inputOffset, w: 152.3, label: "Como estão minhas finanças?" },
-        { left: 299.3, top: 391 + inputOffset, w: 121.9, label: "Qual meu saldo este mês?" },
-      ].map((p) => (
-        <div key={p.label} className="absolute" style={{ left: X(p.left), top: Y(p.top), width: X(p.w), height: Y(22) }}>
-          <div className="h-full w-full rounded-full" style={{ background: "#51d98a" }} />
-          <p
-            className="absolute inset-0 flex items-center justify-center px-1 text-center font-display font-light leading-none text-[#252525]"
-            style={{ fontSize: FSX(6.8) }}
+      {/* user question bubble */}
+      <div className="absolute" style={{ left: X(70), top: Y(180), width: X(296) }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`q-${round}`}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="ml-auto w-fit max-w-full bg-[#0e3821]"
+            style={{
+              borderRadius: bubbleRadius("br"),
+              paddingTop: Y(13),
+              paddingBottom: Y(13),
+              paddingLeft: X(18),
+              paddingRight: X(18),
+            }}
           >
-            {p.label}
-          </p>
-        </div>
-      ))}
+            <p
+              className="text-right font-subtitle leading-snug text-white"
+              style={{ fontSize: FSX(10) }}
+            >
+              {exchange.q}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* suggestion pills — auto-scrolling carousel, so labels stay full size */}
+      <div
+        className="absolute overflow-hidden"
+        style={{
+          left: X(26),
+          top: Y(391 + inputOffset),
+          width: X(337),
+          height: Y(26),
+          maskImage: "linear-gradient(to right, black 92%, transparent 100%)",
+        }}
+      >
+        <motion.div
+          className="flex items-center"
+          style={{ width: "max-content", gap: X(10) }}
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
+        >
+          {[...SCRIPT.slice(1), ...SCRIPT.slice(1)].map((ex, i) => (
+            <div
+              key={i}
+              className="flex shrink-0 items-center justify-center whitespace-nowrap rounded-full"
+              style={{ background: "#51d98a", height: Y(26), paddingLeft: X(13), paddingRight: X(13) }}
+            >
+              <p className="font-display font-light leading-none text-[#252525]" style={{ fontSize: FSX(8) }}>
+                {ex.q}
+              </p>
+            </div>
+          ))}
+        </motion.div>
+      </div>
 
       {/* input bar */}
       <div
-        className="absolute rounded-full bg-white"
+        className="absolute flex items-center justify-center rounded-full bg-white"
         style={{ left: X(28), top: Y(424 + inputOffset), width: X(33), height: Y(33) }}
       >
-        <p
-          className="absolute inset-0 flex items-center justify-center font-display font-light text-[#686868]"
-          style={{ fontSize: FSX(17) }}
-        >
+        <p className="font-display font-light text-[#686868]" style={{ fontSize: FSX(17) }}>
           +
         </p>
       </div>
       <div
-        className="absolute rounded-full bg-white"
-        style={{ left: X(76.2), top: Y(424 + inputOffset), width: X(236), height: Y(33) }}
+        className="absolute flex items-center rounded-full bg-white"
+        style={{ left: X(76.2), top: Y(424 + inputOffset), width: X(236), height: Y(33), paddingLeft: X(14) }}
       >
-        <p
-          className="absolute inset-0 flex items-center px-[6%] font-display font-light text-[#c7c7c7]"
-          style={{ fontSize: FSX(10.5) }}
-        >
+        <p className="font-subtitle text-[#c7c7c7]" style={{ fontSize: FSX(10.5) }}>
           Pergunte à flora...
         </p>
       </div>

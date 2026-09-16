@@ -23,7 +23,7 @@ export function SignupScreen() {
       <p className="absolute font-display font-bold leading-none text-[#282828]" style={{ left: X(28), top: Y(70), fontSize: FSX(18) }}>
         Vamos começar!
       </p>
-      <p className="absolute font-display font-light text-[#282828]" style={{ left: X(28), top: Y(96), fontSize: FSX(10) }}>
+      <p className="absolute font-subtitle text-[#282828]" style={{ left: X(28), top: Y(96), fontSize: FSX(10) }}>
         Crie sua conta gratuitamente
       </p>
 
@@ -92,7 +92,7 @@ export function OpenFinanceScreen() {
           </svg>
         </div>
         <p className="absolute font-display font-medium text-[#282828]" style={{ left: X(53), top: Y(14), fontSize: FSX(9) }}>Conexão segura</p>
-        <p className="absolute font-display font-light text-[#797979]" style={{ left: X(53), top: Y(28), fontSize: FSX(7.8) }}>Seus dados são protegidos e nunca compartilhados</p>
+        <p className="absolute font-subtitle text-[#797979]" style={{ left: X(53), top: Y(28), fontSize: FSX(7.8) }}>Seus dados são protegidos e nunca compartilhados</p>
       </div>
 
       <div className="absolute rounded-[10%] border border-[#cdcdcd] bg-white" style={{ left: X(27), top: Y(207), width: X(340), height: Y(259) }}>
@@ -105,7 +105,7 @@ export function OpenFinanceScreen() {
         <p className="absolute -translate-x-1/2 text-center font-display font-semibold text-[#191919]" style={{ left: "50%", top: Y(106), width: X(269), fontSize: FSX(14.4) }}>
           Nenhum banco conectado
         </p>
-        <p className="absolute -translate-x-1/2 text-center font-display font-light text-[#191919]" style={{ left: "50%", top: Y(132), width: X(245), fontSize: FSX(11) }}>
+        <p className="absolute -translate-x-1/2 text-center font-subtitle text-[#191919]" style={{ left: "50%", top: Y(132), width: X(245), fontSize: FSX(11) }}>
           Conecte sua conta para importar transações automaticamente.
         </p>
         <div className="absolute flex items-center justify-center rounded-[10px] bg-[#41e98c]" style={{ left: X(25), top: Y(195), width: X(296), height: Y(41) }}>

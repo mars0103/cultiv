@@ -74,7 +74,7 @@ export function StepsShowcase() {
                 <h2 className="mt-2 font-display text-2xl font-bold text-cultiv-ink md:text-4xl">
                   {active.title}
                 </h2>
-                <p className="mt-4 max-w-md text-base text-cultiv-title md:text-lg">{active.desc}</p>
+                <p className="mt-4 max-w-md font-subtitle text-base text-cultiv-title md:text-lg">{active.desc}</p>
               </motion.div>
             </AnimatePresence>
 

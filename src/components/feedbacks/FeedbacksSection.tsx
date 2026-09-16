@@ -47,7 +47,7 @@ export function FeedbacksSection() {
                 </svg>
               ))}
             </div>
-            <p className="text-sm leading-relaxed text-cultiv-muted">&ldquo;{f.quote}&rdquo;</p>
+            <p className="font-subtitle text-sm leading-relaxed text-cultiv-muted">&ldquo;{f.quote}&rdquo;</p>
             <div className="mt-auto flex items-center gap-3 pt-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cultiv-forest-dark font-display text-sm font-bold text-cultiv-mint">
                 {f.name[0]}

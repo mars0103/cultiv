@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Unbounded, Inter } from "next/font/google";
+import { Unbounded, Inter, Raleway } from "next/font/google";
 import "./globals.css";
 
 const unbounded = Unbounded({
@@ -14,6 +14,12 @@ const inter = Inter({
   weight: ["400", "700"],
 });
 
+const raleway = Raleway({
+  variable: "--font-raleway",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+});
+
 export const metadata: Metadata = {
   title: "Cultiv — Sua vida financeira muito mais organizada",
   description:
@@ -24,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
-      className={`${unbounded.variable} ${inter.variable} h-full antialiased`}
+      className={`${unbounded.variable} ${inter.variable} ${raleway.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white">{children}</body>
     </html>

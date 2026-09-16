@@ -70,7 +70,7 @@ export function FAQSection() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <p className="px-6 pb-5 text-sm leading-relaxed text-cultiv-muted">{f.a}</p>
+                    <p className="px-6 pb-5 font-subtitle text-sm leading-relaxed text-cultiv-muted">{f.a}</p>
                   </motion.div>
                 )}
               </AnimatePresence>

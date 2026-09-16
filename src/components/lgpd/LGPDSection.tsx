@@ -35,7 +35,7 @@ export function LGPDSection() {
       >
         Seus dados nunca ficam com a gente
       </motion.h2>
-      <p className="mx-auto mt-4 max-w-2xl text-base text-cultiv-title md:text-lg">
+      <p className="mx-auto mt-4 max-w-2xl font-subtitle text-base text-cultiv-title md:text-lg">
         Trabalhamos com Open Finance regulado pelo Banco Central e seguimos a LGPD à risca:
         conectamos seus dados só pra te mostrar sua vida financeira — nada mais.
       </p>

@@ -35,7 +35,7 @@ export function PlanoSection() {
           <p className="font-display text-5xl font-bold">R$ 19,90</p>
           <p className="pb-2 text-white/70">/mês</p>
         </div>
-        <p className="mt-1 text-sm text-white/70">7 dias grátis, cancele quando quiser.</p>
+        <p className="mt-1 font-subtitle text-sm text-white/70">7 dias grátis, cancele quando quiser.</p>
 
         <ul className="mt-8 flex flex-col gap-3">
           {FEATURES.map((f) => (

@@ -13,6 +13,56 @@ const CAMERA_POS = b2t(-2, -16, 1.6);
 const CAMERA_TARGET = new THREE.Vector3(...b2t(0, 10, 0.6));
 const KEY_LIGHT_POS = b2t(-21, 1, 7);
 const FILL_LIGHT_POS = b2t(6, -14, 6);
+// Must sit inside the camera's ~26deg-FOV frustum (checked against
+// CAMERA_POS/CAMERA_TARGET) or the glow sprite never actually renders.
+const SUN_POS: [number, number, number] = [-4, 5.6, -18];
+
+function makeGlowTexture() {
+  const size = 256;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  grad.addColorStop(0, "rgba(255, 250, 235, 1)");
+  grad.addColorStop(0.25, "rgba(255, 240, 200, 0.55)");
+  grad.addColorStop(0.6, "rgba(255, 225, 170, 0.15)");
+  grad.addColorStop(1, "rgba(255, 225, 170, 0)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+/** A soft sun glow + bright core, billboarded toward the camera. */
+function SunGlow() {
+  const glowTex = useMemo(() => makeGlowTexture(), []);
+  return (
+    <group position={SUN_POS}>
+      <sprite scale={[26, 26, 1]}>
+        <spriteMaterial
+          map={glowTex}
+          color="#fff3d6"
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          opacity={0.9}
+        />
+      </sprite>
+      <sprite scale={[4.5, 4.5, 1]}>
+        <spriteMaterial
+          map={glowTex}
+          color="#ffffff"
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          opacity={1}
+        />
+      </sprite>
+    </group>
+  );
+}
 
 // The terrain's Blender material drives its color via a procedural node graph
 // (noise texture -> color ramp -> bump) that glTF's PBR export can't carry
@@ -82,12 +132,13 @@ export function HillsScene({
         dpr={[1, 1.75]}
       >
         <fog attach="fog" args={["#2f6b45", 18, 55]} />
-        <ambientLight intensity={0.55} color="#dff5e6" />
-        <hemisphereLight args={["#bfe9c9", "#0c3c2c", 0.5]} />
-        <directionalLight position={KEY_LIGHT_POS} intensity={2.1} color="#fff8ec" />
-        <directionalLight position={FILL_LIGHT_POS} intensity={0.35} color="#d9f0ff" />
+        <ambientLight intensity={0.42} color="#dff5e6" />
+        <hemisphereLight args={["#bfe9c9", "#0c3c2c", 0.42]} />
+        <directionalLight position={KEY_LIGHT_POS} intensity={2.8} color="#ffd9a0" />
+        <directionalLight position={FILL_LIGHT_POS} intensity={0.3} color="#d9f0ff" />
         <Suspense fallback={null}>
           <Model />
+          <SunGlow />
         </Suspense>
         <ParallaxRig scrollYProgress={scrollYProgress} />
       </Canvas>

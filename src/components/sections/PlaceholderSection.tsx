@@ -22,7 +22,7 @@ export function PlaceholderSection({ eyebrow, title, subtitle, className = "", c
         {title}
       </h2>
       {subtitle && (
-        <p className="mx-auto mt-4 max-w-2xl font-display text-lg text-cultiv-title">{subtitle}</p>
+        <p className="mx-auto mt-4 max-w-2xl font-subtitle text-lg text-cultiv-title">{subtitle}</p>
       )}
       {children}
     </section>

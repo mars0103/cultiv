@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { PhoneChatMockup } from "./PhoneChatMockup";
 import { NotificationCard } from "./NotificationCard";
 import { notifications } from "./notification-data";
@@ -30,9 +30,24 @@ export function Hero() {
   const phoneY = useTransform(scrollYProgress, [0, 1], [0, -140]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.9, 1], [1, 1, 0]);
 
+  // Mouse-hover parallax: layers shift sideways with the cursor, foreground
+  // (phone) more than mid-ground (text) — same "closer = faster" depth cue.
+  const rawMouseX = useMotionValue(0);
+  const mouseX = useSpring(rawMouseX, { stiffness: 55, damping: 14, mass: 0.4 });
+  const textMouseX = useTransform(mouseX, [-1, 1], [-8, 8]);
+  const phoneMouseX = useTransform(mouseX, [-1, 1], [-22, 22]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    rawMouseX.set(((e.clientX - rect.left) / rect.width - 0.5) * 2);
+  };
+  const handleMouseLeave = () => rawMouseX.set(0);
+
   return (
     <section
       ref={sectionRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       className="relative w-full overflow-hidden bg-gradient-to-b from-[#06432d] via-[35%] via-[#46a357] to-[#46a357]"
     >
       {/* ---------- DESKTOP / TABLET: faithful absolute canvas ---------- */}
@@ -47,7 +62,7 @@ export function Hero() {
         </div>
 
         {/* heading — mid-ground parallax layer */}
-        <motion.div className="absolute inset-0" style={{ y: textY, opacity: heroOpacity }}>
+        <motion.div className="absolute inset-0" style={{ y: textY, x: textMouseX, opacity: heroOpacity }}>
           <motion.p
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -61,7 +76,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
-            className="absolute -translate-x-1/2 text-center font-display font-light leading-snug text-white/90"
+            className="absolute -translate-x-1/2 text-center font-subtitle leading-snug text-white/90"
             style={{ left: "50%", top: Y(200), width: X(600), fontSize: FS(21) }}
           >
             Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
@@ -88,7 +103,7 @@ export function Hero() {
         </motion.div>
 
         {/* phone + floating notifications — foreground parallax layer, moves fastest */}
-        <motion.div className="absolute inset-0" style={{ y: phoneY, opacity: heroOpacity }}>
+        <motion.div className="absolute inset-0" style={{ y: phoneY, x: phoneMouseX, opacity: heroOpacity }}>
           <div className="absolute" style={{ left: X(726), top: Y(295), width: X(445.5), height: Y(600) }}>
             <PhoneChatMockup />
           </div>
@@ -131,7 +146,7 @@ export function Hero() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-center font-display text-[15px] font-light text-white/90"
+          className="text-center font-subtitle text-[15px] text-white/90"
         >
           Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
         </motion.p>
