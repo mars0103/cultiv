@@ -85,15 +85,15 @@ function makeLabelTexture(text: string) {
   canvas.width = 512;
   canvas.height = 128;
   const ctx = canvas.getContext("2d")!;
-  // The label plane's true front (per its Blender rotation) ends up facing
-  // away from the camera, so DoubleSide shows its back — which mirrors the
-  // texture horizontally. Pre-mirroring the draw cancels that out. (Tried
-  // the bank icon's full 180° flip here too since both planes share the
-  // same rotation — it actually made the text read upside down, so despite
-  // the identical rotation these two evidently end up with different UV
-  // winding; horizontal-only is what's empirically correct for this one.)
-  ctx.translate(canvas.width, 0);
-  ctx.scale(-1, 1);
+  // The label plane's back-facing-front quirk needs a vertical-only flip
+  // here — confirmed empirically after horizontal-only and full-180 both
+  // rendered wrong (mirrored, then upside down and reversed). Each of the
+  // three back-facing planes on the bank token (icon, label, and — see
+  // makeMirroredTexture — the bezel) ended up needing its own different
+  // correction despite sharing the same rotation, evidently because their
+  // UV winding differs; don't assume one plane's fix carries to another.
+  ctx.translate(0, canvas.height);
+  ctx.scale(1, -1);
   ctx.font = "800 74px Inter, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";

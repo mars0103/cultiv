@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import type { MotionValue } from "framer-motion";
@@ -18,11 +18,73 @@ const END_TARGET = new THREE.Vector3(0, 0, 6);
 const START_FOG_COLOR = new THREE.Color("#bfe6c4");
 const END_FOG_COLOR = new THREE.Color("#ffffff");
 
-// The phone bezel's position relative to the camera, once it's rendered as
-// an actual child of <PerspectiveCamera> below — captured empirically by
-// measuring where camera.attach() placed it at rest, expressed as a fixed
-// local offset instead of computed at runtime.
-const PHONE_BEZEL_LOCAL_POS: [number, number, number] = [-0.0205, -0.6468, -5.0436];
+// Hero.tsx's UI overlay is a 1920x996-aspect box centered in the viewport
+// (letterboxed on whichever axis doesn't match), and the phone sits at a
+// fixed rect within it (X(726)/Y(295)/445.5 wide, height following its own
+// image aspect ratio since it isn't clamped to the box). A single hardcoded
+// local offset for the 3D bezel only matched one specific viewport size —
+// wrong on any other window, since the letterboxing changes with aspect
+// ratio. PhoneBezelTransform below recomputes the projection every frame
+// instead, so it tracks the DOM rect at any viewport size.
+const UI_BOX_ASPECT = 1920 / 996;
+const DOM_PHONE_RECT = {
+  left: 726 / 1920,
+  top: 295 / 996,
+  width: 445.5 / 1920,
+  height: (445.5 * (972.675 / 445.488)) / 996,
+};
+const BEZEL_DEPTH = 5;
+
+/** Keeps the 3D phone bezel projected exactly onto the DOM phone's rect,
+ * at any viewport size/aspect ratio, by re-deriving its camera-local
+ * position and scale from the same box-letterboxing math Hero.tsx's CSS
+ * uses, every frame. */
+function PhoneBezelTransform({ bezel }: { bezel: THREE.Object3D }) {
+  const { camera, size } = useThree();
+
+  const nativeWidth = useMemo(() => {
+    const mesh = bezel as THREE.Mesh;
+    if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+    const box = mesh.geometry.boundingBox!;
+    return box.max.x - box.min.x;
+  }, [bezel]);
+
+  useFrame(() => {
+    const viewportAspect = size.width / size.height;
+    let boxWidth: number, boxHeight: number, offsetX: number, offsetY: number;
+    if (viewportAspect <= UI_BOX_ASPECT) {
+      boxWidth = size.width;
+      boxHeight = size.width / UI_BOX_ASPECT;
+      offsetX = 0;
+      offsetY = (size.height - boxHeight) / 2;
+    } else {
+      boxHeight = size.height;
+      boxWidth = size.height * UI_BOX_ASPECT;
+      offsetX = (size.width - boxWidth) / 2;
+      offsetY = 0;
+    }
+
+    const centerXFrac = DOM_PHONE_RECT.left + DOM_PHONE_RECT.width / 2;
+    const centerYFrac = DOM_PHONE_RECT.top + DOM_PHONE_RECT.height / 2;
+    const pixelCenterX = offsetX + centerXFrac * boxWidth;
+    const pixelCenterY = offsetY + centerYFrac * boxHeight;
+    const pixelWidth = DOM_PHONE_RECT.width * boxWidth;
+
+    const ndcX = (pixelCenterX / size.width) * 2 - 1;
+    const ndcY = 1 - (pixelCenterY / size.height) * 2;
+    const widthFracOfViewport = pixelWidth / size.width;
+
+    const cam = camera as THREE.PerspectiveCamera;
+    const vFovRad = (cam.fov * Math.PI) / 180;
+    const visibleHeightAtDepth = 2 * BEZEL_DEPTH * Math.tan(vFovRad / 2);
+    const visibleWidthAtDepth = visibleHeightAtDepth * cam.aspect;
+
+    bezel.position.set(ndcX * (visibleWidthAtDepth / 2), ndcY * (visibleHeightAtDepth / 2), -BEZEL_DEPTH);
+    bezel.scale.setScalar((widthFracOfViewport * visibleWidthAtDepth) / nativeWidth);
+  });
+
+  return null;
+}
 
 /**
  * Drives the whole Hero-to-steps handoff from a single scroll progress value
@@ -102,9 +164,14 @@ export function HillsScene({
         <SceneLights />
         <SceneModel progress={progress} onBezelFound={setPhoneBezel} />
         <PerspectiveCamera makeDefault position={CAMERA_POS} fov={26} near={0.5} far={140}>
-          {phoneBezel && <primitive object={phoneBezel} position={PHONE_BEZEL_LOCAL_POS} />}
+          {phoneBezel && <primitive object={phoneBezel} />}
         </PerspectiveCamera>
-        {phoneBezel && <PhoneBezelFade bezel={phoneBezel} progress={progress} />}
+        {phoneBezel && (
+          <>
+            <PhoneBezelTransform bezel={phoneBezel} />
+            <PhoneBezelFade bezel={phoneBezel} progress={progress} />
+          </>
+        )}
         <DissolveRig progress={progress} />
       </Canvas>
     </div>
