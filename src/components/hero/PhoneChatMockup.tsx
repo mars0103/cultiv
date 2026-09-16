@@ -91,7 +91,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
         className="absolute overflow-hidden rounded-full bg-white"
         style={{ left: X(51), top: Y(74), width: X(48), height: Y(48) }}
       >
-        <Image src="/images/hero/flora-avatar.png" alt="Flora" fill sizes="48px" className="scale-125 object-contain" />
+        <Image src="/images/hero/flora-avatar.png" alt="Flora" fill sizes="48px" className="scale-90 object-contain" />
       </div>
       <p
         className="absolute font-display font-bold leading-none text-[#282828]"
@@ -136,11 +136,11 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
         className="absolute overflow-hidden rounded-full bg-white"
         style={{ left: X(28), top: Y(290), width: X(37.7), height: Y(37.7) }}
       >
-        <Image src="/images/hero/flora-avatar.png" alt="" fill sizes="38px" className="scale-125 object-contain" />
+        <Image src="/images/hero/flora-avatar.png" alt="" fill sizes="38px" className="scale-90 object-contain" />
       </div>
 
       {/* reply slot: typing indicator <-> answer bubble */}
-      <div className="absolute" style={{ left: X(74.9), top: Y(230), width: X(260), minHeight: Y(76) }}>
+      <div className="absolute" style={{ left: X(74.9), top: Y(225), width: X(280), minHeight: Y(90) }}>
         <AnimatePresence mode="wait">
           {phase === "typing" ? (
             <motion.div
@@ -163,15 +163,15 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
               transition={{ duration: 0.3 }}
               className="bg-white p-0 shadow-sm"
               style={{
-                width: X(248),
+                width: X(268),
                 borderRadius: bubbleRadius("bl"),
-                paddingTop: Y(15),
-                paddingBottom: Y(15),
-                paddingLeft: X(17),
-                paddingRight: X(17),
+                paddingTop: Y(16),
+                paddingBottom: Y(16),
+                paddingLeft: X(18),
+                paddingRight: X(18),
               }}
             >
-              <p className="font-subtitle leading-snug text-[#686868]" style={{ fontSize: FSX(10.5) }}>
+              <p className="font-subtitle leading-snug text-[#686868]" style={{ fontSize: FSX(13) }}>
                 {exchange.a}
               </p>
             </motion.div>
@@ -191,15 +191,15 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
             className="ml-auto w-fit max-w-full bg-[#0e3821]"
             style={{
               borderRadius: bubbleRadius("br"),
-              paddingTop: Y(13),
-              paddingBottom: Y(13),
-              paddingLeft: X(18),
-              paddingRight: X(18),
+              paddingTop: Y(15),
+              paddingBottom: Y(15),
+              paddingLeft: X(20),
+              paddingRight: X(20),
             }}
           >
             <p
               className="text-right font-subtitle leading-snug text-white"
-              style={{ fontSize: FSX(10) }}
+              style={{ fontSize: FSX(12.5) }}
             >
               {exchange.q}
             </p>
@@ -212,25 +212,25 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
         className="absolute overflow-hidden"
         style={{
           left: X(26),
-          top: Y(391 + inputOffset),
+          top: Y(384 + inputOffset),
           width: X(337),
-          height: Y(26),
+          height: Y(34),
           maskImage: "linear-gradient(to right, black 92%, transparent 100%)",
         }}
       >
         <motion.div
           className="flex items-center"
-          style={{ width: "max-content", gap: X(10) }}
+          style={{ width: "max-content", gap: X(12) }}
           animate={{ x: ["0%", "-50%"] }}
-          transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
         >
           {[...SCRIPT.slice(1), ...SCRIPT.slice(1)].map((ex, i) => (
             <div
               key={i}
               className="flex shrink-0 items-center justify-center whitespace-nowrap rounded-full"
-              style={{ background: "#51d98a", height: Y(26), paddingLeft: X(13), paddingRight: X(13) }}
+              style={{ background: "#51d98a", height: Y(34), paddingLeft: X(18), paddingRight: X(18) }}
             >
-              <p className="font-display font-light leading-none text-[#252525]" style={{ fontSize: FSX(8) }}>
+              <p className="font-display font-light leading-none text-[#252525]" style={{ fontSize: FSX(10) }}>
                 {ex.q}
               </p>
             </div>
