@@ -6,6 +6,8 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform }
 import { ChatScreen, PhoneChatMockup } from "./PhoneChatMockup";
 import { NotificationCard } from "./NotificationCard";
 import { notifications } from "./notification-data";
+import { BankToken } from "./BankToken";
+import { ConnectionLines } from "./ConnectionLines";
 import { HillsScene } from "./scene3d/HillsScene";
 import { PhoneFrame } from "@/components/phone/PhoneFrame";
 import { SignupScreen } from "@/components/steps/PhoneScreens";
@@ -15,6 +17,12 @@ const X = (px: number) => `${((px / 1920) * 100).toFixed(3)}%`;
 const Y = (px: number) => `${((px / 996) * 100).toFixed(3)}%`;
 /** The canvas is full viewport width (no max-width), so vw maps 1:1 to canvas %. */
 const FS = (px: number) => `${((px / 1920) * 100).toFixed(3)}vw`;
+
+// Reuse the existing icon/title/value/date from the shared notification data
+// (kept intact for the mobile layout and the steps section), just repainted
+// at new positions along the bank connection wires.
+const ifoodNotification = notifications.find((n) => n.id === "ifood")!;
+const uberNotification = notifications.find((n) => n.id === "uber")!;
 
 export function Hero() {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -178,7 +186,9 @@ export function Hero() {
               className="absolute -translate-x-1/2 text-center font-title font-bold leading-[1.15] text-[#0d3b25]"
               style={{ left: "50%", top: Y(95), width: X(793), fontSize: FS(39) }}
             >
-              Sua vida financeira muito mais organizada com a Cultiv
+              Todos os seus bancos.
+              <br />
+              Uma vida mais organizada.
             </motion.p>
             <motion.p
               initial={{ opacity: 0, y: 24 }}
@@ -187,7 +197,7 @@ export function Hero() {
               className="absolute -translate-x-1/2 text-center font-subtitle leading-snug text-cultiv-title"
               style={{ left: "50%", top: Y(200), width: X(600), fontSize: FS(21) }}
             >
-              Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
+              Conecte suas contas e deixe a Flora organizar tudo para você.
             </motion.p>
 
             <motion.button
@@ -209,9 +219,37 @@ export function Hero() {
               Teste por 7 dias grátis
             </motion.button>
 
-            {notifications.map((n) => (
-              <NotificationCard key={n.id} item={n} />
-            ))}
+            {/* "connected world": Open Finance bank tokens sitting on the
+                hills, glowing wires running into the phone, and just the
+                two notifications that sit along those wires — swaps out
+                the old scattered-card layout for a single cohesive scene
+                instead of empty hills + a floating phone. */}
+            <ConnectionLines />
+            <BankToken left={X(490)} top={Y(345)} size={FS(84)} label="Conta 01" delay={0.5} />
+            <BankToken left={X(1515)} top={Y(418)} size={FS(84)} label="Conta 02" delay={0.75} />
+            <BankToken left={X(311)} top={Y(620)} size={FS(84)} label="Conta 03" delay={1.0} />
+            <NotificationCard item={{ ...ifoodNotification, left: 20.4, top: 59.3 }} />
+            <NotificationCard item={{ ...uberNotification, left: 67.1, top: 63.5 }} />
+
+            <motion.div
+              className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-3 rounded-full bg-white py-2 pr-5 pl-2 shadow-[0_8px_20px_rgba(13,59,37,0.18)]"
+              style={{ left: X(1385), top: Y(818) }}
+              initial={{ opacity: 0, y: 16, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.7, delay: 1.3, ease: "easeOut" }}
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#25d366]">
+                <svg viewBox="0 0 24 24" fill="white" className="h-[55%] w-[55%]">
+                  <path d="M12 2a10 10 0 00-8.5 15.3L2 22l4.9-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1112 20zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1s-.6.8-.7.9-.3.2-.5.1a6.6 6.6 0 01-1.9-1.2 7 7 0 01-1.3-1.6c-.1-.2 0-.4.1-.5l.4-.4c.1-.1.1-.2.2-.4a.4.4 0 000-.4c-.1-.1-.5-1.3-.7-1.8s-.4-.4-.5-.4h-.5a.9.9 0 00-.6.3 2.7 2.7 0 00-.8 2 4.8 4.8 0 001 2.5 10.7 10.7 0 004.1 3.6c.6.2 1 .4 1.4.5a3.3 3.3 0 001.5.1 2.5 2.5 0 001.6-1.1 2 2 0 00.1-1.1c-.1-.1-.2-.1-.4-.2z" />
+                </svg>
+              </div>
+              <p className="whitespace-nowrap font-display text-sm font-semibold text-[#0d3b25]">
+                Flora também no WhatsApp
+              </p>
+              <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 shrink-0">
+                <path d="M9 6l6 6-6 6" stroke="#0d3b25" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </motion.div>
           </motion.div>
         </div>
 
@@ -284,7 +322,7 @@ export function Hero() {
           transition={{ duration: 0.6 }}
           className="text-center font-title text-[28px] font-bold leading-tight text-[#0d3b25]"
         >
-          Sua vida financeira muito mais organizada com a Cultiv
+          Todos os seus bancos. Uma vida mais organizada.
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -293,7 +331,7 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="text-center font-subtitle text-[15px] text-cultiv-title"
         >
-          Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
+          Conecte suas contas e deixe a Flora organizar tudo para você.
         </motion.p>
         <motion.button
           initial={{ opacity: 0, y: 20 }}
