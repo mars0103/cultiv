@@ -72,8 +72,8 @@ function TypingDots() {
         <motion.span
           key={i}
           className="rounded-full bg-[#a9b3ae]"
-          style={{ width: FSX(6), height: FSX(6) }}
-          animate={{ opacity: [0.3, 1, 0.3], y: [0, -3, 0] }}
+          style={{ width: FSX(8), height: FSX(8) }}
+          animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
           transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15, ease: "easeInOut" }}
         />
       ))}
@@ -150,7 +150,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.25 }}
               className="bg-white shadow-sm"
-              style={{ width: X(74), height: Y(42), borderRadius: bubbleRadius("bl") }}
+              style={{ width: X(84), height: Y(62), borderRadius: bubbleRadius("bl") }}
             >
               <TypingDots />
             </motion.div>
@@ -212,9 +212,9 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
         className="absolute overflow-hidden"
         style={{
           left: X(26),
-          top: Y(384 + inputOffset),
+          top: Y(370 + inputOffset),
           width: X(337),
-          height: Y(34),
+          height: Y(48),
           maskImage: "linear-gradient(to right, black 92%, transparent 100%)",
         }}
       >
@@ -228,7 +228,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
             <div
               key={i}
               className="flex shrink-0 items-center justify-center whitespace-nowrap rounded-full"
-              style={{ background: "#51d98a", height: Y(34), paddingLeft: X(18), paddingRight: X(18) }}
+              style={{ background: "#51d98a", height: Y(48), paddingLeft: X(18), paddingRight: X(18) }}
             >
               <p className="font-display font-light leading-none text-[#252525]" style={{ fontSize: FSX(10) }}>
                 {ex.q}
