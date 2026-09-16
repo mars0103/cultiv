@@ -58,6 +58,13 @@ export function Hero() {
   const contentOpacity = useTransform(progress, (p) => clampedLerp(p, 0.1, 0.3, 1, 0));
   const contentY = useTransform(progress, (p) => clampedLerp(p, 0.1, 0.32, 0, -30));
   const overlayOpacity = useTransform(progress, (p) => clampedLerp(p, 0.42, 0.7, 0, 1));
+  // At rest the phone's actual body is the 3D bezel mesh in the scene
+  // (Phone3D_Bezel, screen-locked to the camera so it tracks the DOM rect
+  // exactly). That lock only accounts for camera position, not fov — and
+  // the camera's fov starts widening for the dissolve at progress 0.12 (see
+  // HillsScene's DissolveRig), so the crossfade to this flat DOM bezel has
+  // to fully finish before then, or the two drift apart as fov changes.
+  const domBezelOpacity = useTransform(progress, (p) => clampedLerp(p, 0.05, 0.12, 0, 1));
   const dwellOpacity = useTransform(progress, (p) => clampedLerp(p, 0.68, 0.85, 0, 1));
 
   const [showStepScreen, setShowStepScreen] = useState(false);
@@ -283,7 +290,7 @@ export function Hero() {
                 animate={{ opacity: 1, scale: 1, transition: { duration: 0.7, delay: 0.5, ease: "easeOut" } }}
                 exit={{ opacity: 0, transition: { duration: 0.2 } }}
               >
-                <PhoneFrame>
+                <PhoneFrame bezelOpacity={domBezelOpacity}>
                   <ChatScreen />
                 </PhoneFrame>
               </motion.div>

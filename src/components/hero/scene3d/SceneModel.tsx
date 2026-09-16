@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import type { MotionValue } from "framer-motion";
 import * as THREE from "three";
 
 // Same Blender(Z-up) -> glTF/Three(Y-up) mapping used on export: (x,y,z) -> (x,z,-y)
@@ -107,6 +108,61 @@ const BANK_LABELS: Record<string, string> = {
   "03": "Conta 03",
 };
 
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+// Same back-facing-plane quirk as the bank labels (see makeLabelTexture) —
+// pre-mirror the bitmap so the phone bezel's notch/buttons land on the
+// correct side once the plane's true front (facing away from camera) shows
+// through.
+async function makeMirroredTexture(src: string) {
+  const img = await loadImage(src);
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d")!;
+  ctx.translate(canvas.width, 0);
+  ctx.scale(-1, 1);
+  ctx.drawImage(img, 0, 0);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+/** Fades the 3D phone bezel out as the hero's own DOM phone bezel fades in
+ * (see Hero.tsx's domBezelOpacity) — timed to finish before progress 0.12,
+ * when DissolveRig's camera fov starts widening for the dissolve. The
+ * bezel's screen-lock only compensates for camera position, not fov, so the
+ * crossfade has to be done before fov drifts or the two visibly separate. */
+function PhoneBezelFade({ root, progress }: { root: THREE.Object3D; progress: MotionValue<number> }) {
+  const material = useMemo<THREE.MeshStandardMaterial | null>(() => {
+    let found: THREE.MeshStandardMaterial | null = null;
+    root.traverse((obj) => {
+      if (obj.name === "Phone3D_Bezel" && obj instanceof THREE.Mesh) {
+        found = obj.material as THREE.MeshStandardMaterial;
+      }
+    });
+    return found;
+  }, [root]);
+
+  useFrame(() => {
+    if (!material) return;
+    const p = progress.get();
+    const fadeOut = Math.min(1, Math.max(0, (p - 0.05) / 0.07));
+    material.opacity = 1 - fadeOut;
+    material.visible = material.opacity > 0.01;
+  });
+
+  return null;
+}
+
 // A handful of small emissive markers sit along each ground wire (baked in
 // Blender at fixed points). Rather than actually translate them each frame
 // (which would need the wire's centerline, lost once glTF turns the curve
@@ -153,7 +209,7 @@ function PulseMarkers({ root }: { root: THREE.Object3D }) {
 // height-based vertex-color gradient (baked in Blender: light green ridges,
 // forest green valleys) plus a very subtle bump — while keeping the tree
 // materials (simple flat colors, already correct) exactly as exported.
-function Model() {
+function Model({ progress }: { progress: MotionValue<number> }) {
   const { scene } = useGLTF("/models/cenario-colinas.glb");
   const bumpTex = useMemo(() => makeBumpTexture(), []);
   const bankIconTex = useMemo(() => makeBankIconTexture(), []);
@@ -202,6 +258,26 @@ function Model() {
 
       if (name.startsWith("Pulse_")) return; // handled by PulseMarkers
 
+      if (name === "Phone3D_Bezel") {
+        const mat = new THREE.MeshStandardMaterial({
+          color: "#0c0c0e",
+          roughness: 0.35,
+          transparent: true,
+          opacity: 1,
+          side: THREE.DoubleSide,
+        });
+        obj.material = mat;
+        obj.renderOrder = 10;
+        obj.castShadow = false;
+        obj.receiveShadow = false;
+        makeMirroredTexture("/images/hero/mockup-vazio.png").then((tex) => {
+          mat.map = tex;
+          mat.color.set("#ffffff");
+          mat.needsUpdate = true;
+        });
+        return;
+      }
+
       // "Open Finance" wires — force the glow client-side rather than trust
       // the glTF round-trip of Blender's emission strength. Low emission,
       // no shadow-casting (a thin bright line casting shadows on itself
@@ -222,6 +298,7 @@ function Model() {
     <>
       <primitive object={localScene} />
       <PulseMarkers root={localScene} />
+      <PhoneBezelFade root={localScene} progress={progress} />
     </>
   );
 }
@@ -244,11 +321,11 @@ function GroundExtension() {
 
 /** Preloaded GLB (terrain + trees), shared by the Hero canvas and the
  * scroll-driven dissolve canvas so both render identically at the handoff. */
-export function SceneModel() {
+export function SceneModel({ progress }: { progress: MotionValue<number> }) {
   return (
     <Suspense fallback={null}>
       <GroundExtension />
-      <Model />
+      <Model progress={progress} />
     </Suspense>
   );
 }

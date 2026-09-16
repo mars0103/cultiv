@@ -34,8 +34,20 @@ function DissolveRig({ progress }: { progress: MotionValue<number> }) {
   const mouse = useRef({ x: 0, y: 0 });
   const pos = useRef(new THREE.Vector3());
   const target = useRef(new THREE.Vector3());
+  const cameraRest = useRef(new THREE.Vector3(...CAMERA_POS));
+  const phoneBezel = useRef<THREE.Object3D | null>(null);
+  const phoneBezelBase = useRef(new THREE.Vector3());
+  const phoneBezelFound = useRef(false);
 
   useFrame((state) => {
+    if (!phoneBezelFound.current) {
+      const found = scene.getObjectByName("Phone3D_Bezel");
+      if (found) {
+        phoneBezel.current = found;
+        phoneBezelBase.current.copy(found.position);
+        phoneBezelFound.current = true;
+      }
+    }
     t.current += state.clock.getDelta();
     const p = progress.get();
     // The dissolve itself only starts once the hero copy begins fading
@@ -58,6 +70,15 @@ function DissolveRig({ progress }: { progress: MotionValue<number> }) {
     target.current.lerpVectors(CAMERA_TARGET, END_TARGET, ease);
     camera.position.copy(pos.current);
     camera.lookAt(target.current);
+
+    // The phone bezel sits right in front of the camera and must stay
+    // screen-locked like the DOM chat content layered over it (which has no
+    // idea the camera just panned) — so it rides along with the exact same
+    // idle/mouse/dissolve offset the camera just got, instead of parallaxing
+    // against it like the hills and bank stations do.
+    if (phoneBezel.current) {
+      phoneBezel.current.position.copy(phoneBezelBase.current).add(pos.current).sub(cameraRest.current);
+    }
 
     const cam = camera as THREE.PerspectiveCamera;
     cam.fov = THREE.MathUtils.lerp(26, 62, ease);
@@ -90,7 +111,7 @@ export function HillsScene({
       >
         <fog attach="fog" args={["#bfe6c4", 22, 58]} />
         <SceneLights />
-        <SceneModel />
+        <SceneModel progress={progress} />
         <DissolveRig progress={progress} />
       </Canvas>
     </div>
