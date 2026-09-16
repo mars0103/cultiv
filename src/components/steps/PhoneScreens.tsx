@@ -118,8 +118,8 @@ export function OpenFinanceScreen() {
 
 function CultivMark({ size = 35 }: { size?: number }) {
   return (
-    <div className="relative rounded-[20%] bg-[#242424]" style={{ width: X(size), height: Y(size) }}>
-      <Image src="/images/brand/cultiv-logo.png" alt="" fill className="scale-[2.6] object-contain object-left p-[15%]" />
+    <div className="relative rounded-[20%] bg-[#242424]" style={{ width: X(size), height: FSX(size) }}>
+      <Image src="/images/brand/logo-icon.svg" alt="" fill className="object-contain p-[18%]" />
     </div>
   );
 }
@@ -127,8 +127,8 @@ function CultivMark({ size = 35 }: { size?: number }) {
 export function HomeScreen() {
   return (
     <div className="relative h-full w-full overflow-hidden rounded-[12.34%] bg-gradient-to-b from-[#0c3c2c] via-[52%] via-[#0aa85c] to-[#f1f5f4] [container-type:inline-size]">
-      <div className="absolute" style={{ left: X(27), top: Y(60), width: X(30), height: Y(35) }}>
-        <Image src="/images/brand/cultiv-logo.png" alt="Cultiv" fill className="object-contain object-left brightness-0 invert" />
+      <div className="absolute" style={{ left: X(27), top: Y(60), width: X(30), height: FSX(35) }}>
+        <Image src="/images/brand/logo clara.svg" alt="Cultiv" fill className="object-contain object-left" />
       </div>
       <p className="absolute font-display font-light text-white" style={{ left: X(27), top: Y(78), fontSize: FSX(13.5) }}>Boa tarde,</p>
       <p className="absolute font-display font-bold text-white" style={{ left: X(27), top: Y(94), fontSize: FSX(17.5) }}>Matheus</p>

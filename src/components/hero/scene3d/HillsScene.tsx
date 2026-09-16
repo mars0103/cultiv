@@ -11,65 +11,53 @@ const b2t = (x: number, y: number, z: number): [number, number, number] => [x, z
 
 const CAMERA_POS = b2t(-2, -16, 1.6);
 const CAMERA_TARGET = new THREE.Vector3(...b2t(0, 10, 0.6));
-const KEY_LIGHT_POS = b2t(-21, 1, 7);
-const FILL_LIGHT_POS = b2t(6, -14, 6);
-// Must sit inside the camera's ~26deg-FOV frustum (checked against
-// CAMERA_POS/CAMERA_TARGET) or the glow sprite never actually renders.
-const SUN_POS: [number, number, number] = [-4, 5.6, -18];
+// Broad key light, high and to the left, slightly toward the camera (front)
+// rather than directly overhead — matches the reference's soft top-left sun.
+const KEY_LIGHT_POS = b2t(-19, -5, 13);
+const FILL_LIGHT_POS = b2t(8, -12, 5);
 
-function makeGlowTexture() {
+function makeBumpTexture() {
   const size = 256;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
-  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, "rgba(255, 250, 235, 1)");
-  grad.addColorStop(0.25, "rgba(255, 240, 200, 0.55)");
-  grad.addColorStop(0.6, "rgba(255, 225, 170, 0.15)");
-  grad.addColorStop(1, "rgba(255, 225, 170, 0)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
+  const img = ctx.createImageData(size, size);
+  // cheap value-noise: a handful of low-frequency sine layers, not per-pixel
+  // random static — keeps it a soft undulation instead of visible grain.
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const u = x / size;
+      const v = y / size;
+      let n =
+        Math.sin(u * 12.3 + v * 7.1) * 0.5 +
+        Math.sin(u * 23.7 - v * 17.9 + 1.7) * 0.3 +
+        Math.sin(u * 41.1 + v * 31.4 + 4.2) * 0.2;
+      n = (n + 1) / 2; // 0..1
+      const val = Math.round(n * 255);
+      const idx = (y * size + x) * 4;
+      img.data[idx] = val;
+      img.data[idx + 1] = val;
+      img.data[idx + 2] = val;
+      img.data[idx + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
   const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(24, 24);
   tex.needsUpdate = true;
   return tex;
 }
 
-/** A soft sun glow + bright core, billboarded toward the camera. */
-function SunGlow() {
-  const glowTex = useMemo(() => makeGlowTexture(), []);
-  return (
-    <group position={SUN_POS}>
-      <sprite scale={[26, 26, 1]}>
-        <spriteMaterial
-          map={glowTex}
-          color="#fff3d6"
-          transparent
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          opacity={0.9}
-        />
-      </sprite>
-      <sprite scale={[4.5, 4.5, 1]}>
-        <spriteMaterial
-          map={glowTex}
-          color="#ffffff"
-          transparent
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          opacity={1}
-        />
-      </sprite>
-    </group>
-  );
-}
-
 // The terrain's Blender material drives its color via a procedural node graph
 // (noise texture -> color ramp -> bump) that glTF's PBR export can't carry
-// over, so it comes back flat/gray. Swap it for a hand-tuned equivalent while
-// keeping the tree materials (simple flat colors) exactly as exported.
+// over, so it comes back flat/gray. Swap it for a hand-tuned equivalent —
+// soft toon green with a very subtle bump — while keeping the tree
+// materials (simple flat colors, already correct) exactly as exported.
 function Model() {
   const { scene } = useGLTF("/models/cenario-colinas.glb");
+  const bumpTex = useMemo(() => makeBumpTexture(), []);
 
   useMemo(() => {
     scene.traverse((obj) => {
@@ -78,13 +66,15 @@ function Model() {
       obj.receiveShadow = true;
       if (obj.name.toLowerCase().includes("terreno")) {
         obj.material = new THREE.MeshStandardMaterial({
-          color: "#79bd6e",
-          roughness: 0.95,
+          color: "#6dbb73",
+          roughness: 0.92,
           metalness: 0,
+          bumpMap: bumpTex,
+          bumpScale: 0.012,
         });
       }
     });
-  }, [scene]);
+  }, [scene, bumpTex]);
 
   return <primitive object={scene} />;
 }
@@ -131,14 +121,15 @@ export function HillsScene({
         camera={{ position: CAMERA_POS, fov: 26, near: 0.5, far: 120 }}
         dpr={[1, 1.75]}
       >
-        <fog attach="fog" args={["#2f6b45", 18, 55]} />
-        <ambientLight intensity={0.42} color="#dff5e6" />
-        <hemisphereLight args={["#bfe9c9", "#0c3c2c", 0.42]} />
-        <directionalLight position={KEY_LIGHT_POS} intensity={2.8} color="#ffd9a0" />
-        <directionalLight position={FILL_LIGHT_POS} intensity={0.3} color="#d9f0ff" />
+        <fog attach="fog" args={["#bfe6c4", 22, 58]} />
+        {/* moderate ambient fill — enough to keep shadow detail without
+         * flattening the light/dark contrast that reads as volume */}
+        <ambientLight intensity={0.32} color="#eafbe9" />
+        <hemisphereLight args={["#d8f3d9", "#3f7a4d", 0.3]} />
+        <directionalLight position={KEY_LIGHT_POS} intensity={2.1} color="#fff6df" />
+        <directionalLight position={FILL_LIGHT_POS} intensity={0.22} color="#cfe8ff" />
         <Suspense fallback={null}>
           <Model />
-          <SunGlow />
         </Suspense>
         <ParallaxRig scrollYProgress={scrollYProgress} />
       </Canvas>

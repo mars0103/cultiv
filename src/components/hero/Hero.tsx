@@ -48,17 +48,16 @@ export function Hero() {
       ref={sectionRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full overflow-hidden bg-gradient-to-b from-[#06432d] via-[35%] via-[#46a357] to-[#46a357]"
+      className="relative w-full overflow-hidden bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9]"
     >
       {/* ---------- DESKTOP / TABLET: faithful absolute canvas ---------- */}
       <div className="relative mx-auto hidden w-full md:block" style={{ aspectRatio: "1920 / 996" }}>
         {/* real-time 3D background (the actual Blender terrain/trees), with scroll parallax */}
         {isDesktop && <HillsScene scrollYProgress={scrollYProgress} className="absolute inset-0" />}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#06432d]/10 via-transparent to-[#06432d]/40" />
 
         {/* logo */}
-        <div className="absolute" style={{ left: X(86), top: Y(65), width: X(226), height: Y(65) }}>
-          <Image src="/images/brand/cultiv-logo.png" alt="Cultiv" fill className="object-contain object-left" />
+        <div className="absolute" style={{ left: X(86), top: Y(70), width: X(226), height: Y(55) }}>
+          <Image src="/images/brand/logo escura.svg" alt="Cultiv" fill className="object-contain object-left" />
         </div>
 
         {/* heading — mid-ground parallax layer */}
@@ -67,7 +66,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
-            className="absolute -translate-x-1/2 text-center font-title font-bold leading-[1.15] text-white"
+            className="absolute -translate-x-1/2 text-center font-title font-bold leading-[1.15] text-[#0d3b25]"
             style={{ left: "50%", top: Y(95), width: X(793), fontSize: FS(39) }}
           >
             Sua vida financeira muito mais organizada com a Cultiv
@@ -76,7 +75,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.12, ease: "easeOut" }}
-            className="absolute -translate-x-1/2 text-center font-subtitle leading-snug text-white/90"
+            className="absolute -translate-x-1/2 text-center font-subtitle leading-snug text-cultiv-title"
             style={{ left: "50%", top: Y(200), width: X(600), fontSize: FS(21) }}
           >
             Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
@@ -115,8 +114,8 @@ export function Hero() {
       </div>
 
       {/* ---------- MOBILE: stacked layout ---------- */}
-      <div className="relative flex w-full flex-col items-center gap-6 px-6 pt-8 pb-16 md:hidden">
-        <div className="absolute inset-0 -z-10">
+      <div className="relative flex w-full flex-col items-center gap-6 bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9] px-6 pt-8 pb-16 md:hidden">
+        <div className="absolute inset-0 -z-10 opacity-90">
           <Image
             src="/images/hero/hills-3d.png"
             alt=""
@@ -125,11 +124,10 @@ export function Hero() {
             sizes="100vw"
             className="object-cover object-bottom blur-[1px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#06432d]/20 via-transparent to-[#06432d]/50" />
         </div>
 
         <div className="relative h-[26px] w-[95px] self-start">
-          <Image src="/images/brand/cultiv-logo.png" alt="Cultiv" fill className="object-contain object-left" />
+          <Image src="/images/brand/logo escura.svg" alt="Cultiv" fill className="object-contain object-left" />
         </div>
 
         <motion.h1
@@ -137,7 +135,7 @@ export function Hero() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center font-title text-[28px] font-bold leading-tight text-white"
+          className="text-center font-title text-[28px] font-bold leading-tight text-[#0d3b25]"
         >
           Sua vida financeira muito mais organizada com a Cultiv
         </motion.h1>
@@ -146,7 +144,7 @@ export function Hero() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-center font-subtitle text-[15px] text-white/90"
+          className="text-center font-subtitle text-[15px] text-cultiv-title"
         >
           Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.
         </motion.p>
