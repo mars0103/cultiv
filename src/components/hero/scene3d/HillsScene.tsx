@@ -86,6 +86,7 @@ export function HillsScene({
         gl={{ alpha: true, antialias: true }}
         camera={{ position: CAMERA_POS, fov: 26, near: 0.5, far: 140 }}
         dpr={[1, 1.75]}
+        shadows="soft"
       >
         <fog attach="fog" args={["#bfe6c4", 22, 58]} />
         <SceneLights />

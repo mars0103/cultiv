@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import { ChatScreen, PhoneChatMockup } from "./PhoneChatMockup";
+import { NotificationCard } from "./NotificationCard";
 import { notifications } from "./notification-data";
 import { HillsScene } from "./scene3d/HillsScene";
 import { PhoneFrame } from "@/components/phone/PhoneFrame";
@@ -14,6 +15,12 @@ const X = (px: number) => `${((px / 1920) * 100).toFixed(3)}%`;
 const Y = (px: number) => `${((px / 996) * 100).toFixed(3)}%`;
 /** The canvas is full viewport width (no max-width), so vw maps 1:1 to canvas %. */
 const FS = (px: number) => `${((px / 1920) * 100).toFixed(3)}vw`;
+
+// Reuse the existing icon/title/value/date; only the position changes —
+// these two live as sharp HTML overlay cards close to the phone rather
+// than as 3D scene geometry, so they never pick up the scene's shadows.
+const ifoodNotification = notifications.find((n) => n.id === "ifood")!;
+const uberNotification = notifications.find((n) => n.id === "uber")!;
 
 export function Hero() {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -210,10 +217,13 @@ export function Hero() {
               Teste por 7 dias grátis
             </motion.button>
 
-            {/* the "connected world" (bank tokens, glowing wires, the two
-                notification cards) now lives inside the 3D scene itself —
-                real geometry on the hills in HillsScene/SceneModel, not a
-                DOM overlay, so it has real perspective and depth. */}
+            {/* the bank tokens + glowing wires live inside the 3D scene
+                itself (real geometry on the hills in HillsScene/SceneModel),
+                but the transaction notifications stay sharp HTML overlays
+                close to the phone — they never picked up scene shadows or
+                shrank to illegible size this way. */}
+            <NotificationCard item={{ ...ifoodNotification, left: 6, top: 73 }} />
+            <NotificationCard item={{ ...uberNotification, left: 79.5, top: 68 }} />
 
             <motion.div
               className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-3 rounded-full bg-white py-2 pr-5 pl-2 shadow-[0_8px_20px_rgba(13,59,37,0.18)]"

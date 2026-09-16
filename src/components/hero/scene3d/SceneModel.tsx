@@ -1,7 +1,8 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 // Same Blender(Z-up) -> glTF/Three(Y-up) mapping used on export: (x,y,z) -> (x,z,-y)
@@ -56,7 +57,7 @@ function makeBankIconTexture() {
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#4c5c52";
+  ctx.fillStyle = "#5fa46c";
   const s = size / 24;
   ctx.beginPath();
   ctx.moveTo(12 * s, 3.5 * s);
@@ -79,6 +80,12 @@ function makeLabelTexture(text: string) {
   canvas.width = 512;
   canvas.height = 128;
   const ctx = canvas.getContext("2d")!;
+  // The label plane's true front (per its Blender rotation) ends up facing
+  // away from the camera, so DoubleSide shows its back — which mirrors the
+  // texture horizontally. Pre-mirroring the draw cancels that out instead
+  // of chasing the exact rotation math.
+  ctx.translate(canvas.width, 0);
+  ctx.scale(-1, 1);
   ctx.font = "800 74px Inter, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -94,72 +101,57 @@ function makeLabelTexture(text: string) {
   return tex;
 }
 
-function loadImage(src: string) {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-}
-
-// Matches the 2D NotificationCard's layout (icon circle + title/value on
-// one line, date beneath) baked into a single decal texture instead of a
-// DOM element, so it sits as real, perspective-correct content on the 3D
-// card mesh's face.
-async function makeNotifTexture(icon: string, title: string, value: string, date: string) {
-  const w = 630, h = 136;
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d")!;
-  const img = await loadImage(icon).catch(() => null);
-
-  const cy = h / 2;
-  const r = 44;
-  const cx = r + 14;
-  if (img) {
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2);
-    ctx.restore();
-  }
-
-  const textX = cx + r + 26;
-  ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = "#526059";
-  ctx.font = "700 34px Inter, sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText(title, textX, cy - 4);
-  ctx.textAlign = "right";
-  ctx.fillText(value, w - 24, cy - 4);
-  ctx.font = "400 28px Inter, sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText(date, textX, cy + 34);
-
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  return tex;
-}
-
 const BANK_LABELS: Record<string, string> = {
   "01": "Conta 01",
   "02": "Conta 02",
   "03": "Conta 03",
 };
 
-const NOTIF_CONTENT: Record<string, { icon: string; title: string; value: string; date: string }> = {
-  Alimentacao: { icon: "/images/hero/ellipse-ifood.png", title: "Alimentação", value: "R$ 58,00", date: "10 de setembro" },
-  Transporte: { icon: "/images/hero/ellipse-uber.png", title: "Transporte", value: "R$ 23,00", date: "16 de setembro" },
-};
+// A handful of small emissive markers sit along each ground wire (baked in
+// Blender at fixed points). Rather than actually translate them each frame
+// (which would need the wire's centerline, lost once glTF turns the curve
+// into a solid tube), each marker's own emissive intensity is pulsed with a
+// phase offset tied to its position along the path — several fixed points
+// brightening in sequence reads as a slow light traveling the wire.
+function PulseMarkers({ root }: { root: THREE.Object3D }) {
+  const markers = useMemo(() => {
+    const found: { mesh: THREE.Mesh; material: THREE.MeshStandardMaterial; phase: number }[] = [];
+    root.traverse((obj) => {
+      const match = obj.name.match(/^Pulse_Bank(\d+)_(\d+)$/);
+      if (match && obj instanceof THREE.Mesh) {
+        const bankPhase = parseInt(match[1], 10) * 0.6;
+        const idxPhase = parseInt(match[2], 10) * 0.9;
+        const material = new THREE.MeshStandardMaterial({
+          color: "#e4ffd2",
+          emissive: "#d6ffb8",
+          emissiveIntensity: 0.4,
+          roughness: 0.5,
+        });
+        obj.material = material;
+        obj.castShadow = false;
+        obj.receiveShadow = false;
+        found.push({ mesh: obj, material, phase: bankPhase + idxPhase });
+      }
+    });
+    return found;
+  }, [root]);
+
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime() * 0.6;
+    for (const { material, phase } of markers) {
+      const wave = Math.max(0, Math.sin(t - phase));
+      material.emissiveIntensity = 0.25 + wave * wave * 1.3;
+    }
+  });
+
+  return null;
+}
 
 // The terrain's Blender material drives its color via a procedural node graph
 // (noise texture -> color ramp -> bump) that glTF's PBR export can't carry
 // over, so it comes back flat/gray. Swap it for a hand-tuned equivalent —
-// soft toon green with a very subtle bump — while keeping the tree
+// height-based vertex-color gradient (baked in Blender: light green ridges,
+// forest green valleys) plus a very subtle bump — while keeping the tree
 // materials (simple flat colors, already correct) exactly as exported.
 function Model() {
   const { scene } = useGLTF("/models/cenario-colinas.glb");
@@ -182,11 +174,11 @@ function Model() {
       const name = obj.name;
       if (name.toLowerCase().includes("terreno")) {
         obj.material = new THREE.MeshStandardMaterial({
-          color: "#6dbb73",
-          roughness: 0.92,
+          vertexColors: true,
+          roughness: 0.8,
           metalness: 0,
           bumpMap: bumpTex,
-          bumpScale: 0.012,
+          bumpScale: 0.01,
         });
         return;
       }
@@ -208,34 +200,30 @@ function Model() {
         return;
       }
 
-      const notifFaceMatch = name.match(/^NotifCard_(\w+)_Face$/);
-      if (notifFaceMatch) {
-        const content = NOTIF_CONTENT[notifFaceMatch[1]];
-        if (content) {
-          const mat = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide });
-          obj.material = mat;
-          makeNotifTexture(content.icon, content.title, content.value, content.date).then((tex) => {
-            mat.map = tex;
-            mat.needsUpdate = true;
-          });
-        }
-        return;
-      }
+      if (name.startsWith("Pulse_")) return; // handled by PulseMarkers
 
       // "Open Finance" wires — force the glow client-side rather than trust
-      // the glTF round-trip of Blender's emission strength.
+      // the glTF round-trip of Blender's emission strength. Low emission,
+      // no shadow-casting (a thin bright line casting shadows on itself
+      // reads as noisy, not glowing).
       if (name.startsWith("Wire_")) {
         obj.material = new THREE.MeshStandardMaterial({
-          color: "#eafcd0",
-          emissive: "#daffb0",
-          emissiveIntensity: 2.2,
-          roughness: 0.4,
+          color: "#d8f5c0",
+          emissive: "#cdf5ae",
+          emissiveIntensity: 0.55,
+          roughness: 0.55,
         });
+        obj.castShadow = false;
       }
     });
   }, [localScene, bumpTex, bankIconTex]);
 
-  return <primitive object={localScene} />;
+  return (
+    <>
+      <primitive object={localScene} />
+      <PulseMarkers root={localScene} />
+    </>
+  );
 }
 
 // The terrain mesh is only ~48x52 units — plenty for the front hero framing,
@@ -247,9 +235,9 @@ function Model() {
 // like the rest of the scene instead of cutting off.
 function GroundExtension() {
   return (
-    <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+    <mesh position={[0, -0.35, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[800, 800]} />
-      <meshStandardMaterial color="#6dbb73" roughness={0.92} metalness={0} />
+      <meshStandardMaterial color="#5a9a5e" roughness={0.85} metalness={0} />
     </mesh>
   );
 }
@@ -270,10 +258,25 @@ export function SceneLights() {
     <>
       {/* moderate ambient fill — enough to keep shadow detail without
        * flattening the light/dark contrast that reads as volume */}
-      <ambientLight intensity={0.32} color="#eafbe9" />
-      <hemisphereLight args={["#d8f3d9", "#3f7a4d", 0.3]} />
-      <directionalLight position={KEY_LIGHT_POS} intensity={2.1} color="#fff6df" />
-      <directionalLight position={FILL_LIGHT_POS} intensity={0.22} color="#cfe8ff" />
+      <ambientLight intensity={0.24} color="#eafbe9" />
+      <hemisphereLight args={["#d8f3d9", "#3f7a4d", 0.26]} />
+      <directionalLight
+        position={KEY_LIGHT_POS}
+        intensity={2.4}
+        color="#fff6df"
+        castShadow
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-left={-30}
+        shadow-camera-right={30}
+        shadow-camera-top={30}
+        shadow-camera-bottom={-30}
+        shadow-camera-near={1}
+        shadow-camera-far={70}
+        shadow-bias={-0.0004}
+        shadow-normalBias={0.045}
+        shadow-radius={4}
+      />
+      <directionalLight position={FILL_LIGHT_POS} intensity={0.2} color="#cfe8ff" />
     </>
   );
 }
