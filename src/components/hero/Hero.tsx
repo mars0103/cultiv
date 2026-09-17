@@ -27,6 +27,7 @@ export function Hero() {
   const stickyRef = useRef<HTMLDivElement>(null);
   const aspectBoxRef = useRef<HTMLDivElement>(null);
   const endGhostRef = useRef<HTMLDivElement>(null);
+  const phoneRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: progress } = useScroll({
     target: wrapperRef,
     offset: ["start start", "end end"],
@@ -133,7 +134,7 @@ export function Hero() {
         className="sticky top-0 hidden h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9] md:flex"
       >
         {/* real-time 3D background (the actual Blender terrain/trees), fills the whole pinned viewport */}
-        {isDesktop && <HillsScene progress={progress} className="absolute inset-0" />}
+        {isDesktop && <HillsScene progress={progress} className="absolute inset-0" phoneRef={phoneRef} />}
 
         {/* white dissolve wash, above the scene, below the UI */}
         <motion.div className="pointer-events-none absolute inset-0 bg-white" style={{ opacity: overlayOpacity }} />
@@ -169,9 +170,8 @@ export function Hero() {
 
         {/* UI overlay: the original 1920x996 design grid, centered and never
             overflowing the pinned viewport in either dimension. Pointer
-            events pass through so mouse movement reaches the canvas behind
-            it (that's what drives the background parallax) — re-enabled
-            only on the button below, which needs its own hover/tap. */}
+            events pass through to whatever's behind it — re-enabled only on
+            the button below, which needs its own hover/tap. */}
         <div
           ref={aspectBoxRef}
           className="pointer-events-none relative w-full"
@@ -261,6 +261,7 @@ export function Hero() {
             screen just before it starts moving. Never two phones on screen —
             this is the only one, all the way through the handoff. */}
         <motion.div
+          ref={phoneRef}
           className="absolute"
           style={{
             left: phoneLeft,
