@@ -27,7 +27,6 @@ export function Hero() {
   const stickyRef = useRef<HTMLDivElement>(null);
   const aspectBoxRef = useRef<HTMLDivElement>(null);
   const endGhostRef = useRef<HTMLDivElement>(null);
-  const phoneRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: progress } = useScroll({
     target: wrapperRef,
     offset: ["start start", "end end"],
@@ -59,13 +58,6 @@ export function Hero() {
   const contentOpacity = useTransform(progress, (p) => clampedLerp(p, 0.1, 0.3, 1, 0));
   const contentY = useTransform(progress, (p) => clampedLerp(p, 0.1, 0.32, 0, -30));
   const overlayOpacity = useTransform(progress, (p) => clampedLerp(p, 0.42, 0.7, 0, 1));
-  // At rest the phone's actual body is the 3D bezel mesh in the scene
-  // (Phone3D_Bezel, screen-locked to the camera so it tracks the DOM rect
-  // exactly). That lock only accounts for camera position, not fov — and
-  // the camera's fov starts widening for the dissolve at progress 0.12 (see
-  // HillsScene's DissolveRig), so the crossfade to this flat DOM bezel has
-  // to fully finish before then, or the two drift apart as fov changes.
-  const domBezelOpacity = useTransform(progress, (p) => clampedLerp(p, 0.05, 0.12, 0, 1));
   const dwellOpacity = useTransform(progress, (p) => clampedLerp(p, 0.68, 0.85, 0, 1));
 
   const [showStepScreen, setShowStepScreen] = useState(false);
@@ -134,7 +126,7 @@ export function Hero() {
         className="sticky top-0 hidden h-screen w-full items-center justify-center overflow-hidden bg-gradient-to-b from-[#eefaf0] via-[#dcf3e1] to-[#bfe8c9] md:flex"
       >
         {/* real-time 3D background (the actual Blender terrain/trees), fills the whole pinned viewport */}
-        {isDesktop && <HillsScene progress={progress} className="absolute inset-0" phoneRef={phoneRef} />}
+        {isDesktop && <HillsScene progress={progress} className="absolute inset-0" />}
 
         {/* white dissolve wash, above the scene, below the UI */}
         <motion.div className="pointer-events-none absolute inset-0 bg-white" style={{ opacity: overlayOpacity }} />
@@ -261,7 +253,6 @@ export function Hero() {
             screen just before it starts moving. Never two phones on screen —
             this is the only one, all the way through the handoff. */}
         <motion.div
-          ref={phoneRef}
           className="absolute"
           style={{
             left: phoneLeft,
@@ -291,7 +282,7 @@ export function Hero() {
                 animate={{ opacity: 1, scale: 1, transition: { duration: 0.7, delay: 0.5, ease: "easeOut" } }}
                 exit={{ opacity: 0, transition: { duration: 0.2 } }}
               >
-                <PhoneFrame bezelOpacity={domBezelOpacity}>
+                <PhoneFrame>
                   <ChatScreen />
                 </PhoneFrame>
               </motion.div>
