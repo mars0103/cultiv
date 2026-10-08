@@ -35,14 +35,14 @@ export function NotificationCard({ item }: { item: NotificationItem }) {
         </div>
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-[2px]">
           <div className="flex items-baseline justify-between gap-2">
-            <p className="truncate font-sans text-[13px] font-bold text-cultiv-muted">
+            <p className="truncate font-sans text-[11px] font-bold whitespace-nowrap text-cultiv-muted">
               {item.title}
             </p>
-            <p className="shrink-0 font-sans text-[13px] font-bold text-cultiv-muted">
+            <p className="shrink-0 font-sans text-[11px] font-bold text-cultiv-muted">
               {item.value}
             </p>
           </div>
-          <p className="truncate font-sans text-[13px] text-cultiv-muted">{item.date}</p>
+          <p className="truncate font-sans text-[10px] whitespace-nowrap text-cultiv-muted">{item.date}</p>
         </div>
       </motion.div>
     </motion.div>

@@ -19,7 +19,7 @@ const inputFields = [
 
 export function SignupScreen() {
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-[12.34%] bg-[#f4f6f5] [container-type:inline-size]">
+    <div className="relative h-full w-full overflow-hidden bg-[#f4f6f5] [container-type:inline-size]">
       <p className="absolute font-display font-bold leading-none text-[#282828]" style={{ left: X(28), top: Y(70), fontSize: FSX(18) }}>
         Vamos começar!
       </p>
@@ -49,8 +49,8 @@ export function SignupScreen() {
             {f.label}
           </p>
           <div
-            className="absolute rounded-[10%] border border-[#cdcdcd] bg-white"
-            style={{ left: X(27), top: Y(f.boxTop), width: X(340), height: Y(f.boxH) }}
+            className="absolute border border-[#cdcdcd] bg-white"
+            style={{ left: X(27), top: Y(f.boxTop), width: X(340), height: Y(f.boxH), borderRadius: FSX(12) }}
           >
             <p
               className={`absolute inset-0 flex items-center px-[6%] font-display font-light ${f.dark ? "text-[#353131]" : "text-[#c9c9c9]"}`}
@@ -76,8 +76,20 @@ export function SignupScreen() {
 }
 
 export function OpenFinanceScreen() {
+  // Nested cards need their OWN percentage basis (their own design width/
+  // height), not the screen's — a percentage on an absolutely positioned
+  // child resolves against its containing block (this card), so reusing the
+  // screen-wide X()/Y() here was collapsing every child toward the card's
+  // top-left corner instead of spreading across it.
+  const secureBox = { w: 346, h: 52 };
+  const Xs = (px: number) => pct(px, secureBox.w);
+  const Ys = (px: number) => pct(px, secureBox.h);
+  const emptyBox = { w: 340, h: 259 };
+  const Xe = (px: number) => pct(px, emptyBox.w);
+  const Ye = (px: number) => pct(px, emptyBox.h);
+
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-[12.34%] bg-[#f4f6f5] [container-type:inline-size]">
+    <div className="relative h-full w-full overflow-hidden bg-[#f4f6f5] [container-type:inline-size]">
       <p className="absolute flex items-center gap-1 font-display font-light text-[#282828]" style={{ left: X(27), top: Y(82), fontSize: FSX(10) }}>
         <span>‹</span> OPEN FINANCE
       </p>
@@ -85,30 +97,30 @@ export function OpenFinanceScreen() {
         <p className="font-display font-medium text-[#282828]" style={{ fontSize: FSX(10.5) }}>+ Conectar banco</p>
       </div>
 
-      <div className="absolute rounded-[10%] border border-[#e6eeda] bg-[#f0f2ed]" style={{ left: X(28), top: Y(127), width: X(346), height: Y(52) }}>
-        <div className="absolute flex items-center justify-center rounded-md border border-[#4ade80] bg-[#dce9df]" style={{ left: X(15), top: Y(11), width: X(29), height: Y(29) }}>
+      <div className="absolute rounded-[10%] border border-[#e6eeda] bg-[#f0f2ed]" style={{ left: X(28), top: Y(127), width: X(secureBox.w), height: Y(secureBox.h) }}>
+        <div className="absolute flex items-center justify-center rounded-md border border-[#4ade80] bg-[#dce9df]" style={{ left: Xs(15), top: Ys(11), width: Xs(29), height: Ys(29) }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth={2} style={{ width: "60%", height: "60%" }}>
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
         </div>
-        <p className="absolute font-display font-medium text-[#282828]" style={{ left: X(53), top: Y(14), fontSize: FSX(9) }}>Conexão segura</p>
-        <p className="absolute font-subtitle text-[#797979]" style={{ left: X(53), top: Y(28), fontSize: FSX(7.8) }}>Seus dados são protegidos e nunca compartilhados</p>
+        <p className="absolute font-display font-medium text-[#282828]" style={{ left: Xs(53), top: Ys(14), fontSize: FSX(9) }}>Conexão segura</p>
+        <p className="absolute font-subtitle text-[#797979]" style={{ left: Xs(53), top: Ys(28), fontSize: FSX(7.8) }}>Seus dados são protegidos e nunca compartilhados</p>
       </div>
 
-      <div className="absolute rounded-[10%] border border-[#cdcdcd] bg-white" style={{ left: X(27), top: Y(207), width: X(340), height: Y(259) }}>
-        <div className="absolute rounded-lg border border-[#d4d2ca] bg-[#ebeae5]" style={{ left: X(144), top: Y(35), width: X(53), height: Y(53) }}>
+      <div className="absolute rounded-[10%] border border-[#cdcdcd] bg-white" style={{ left: X(27), top: Y(207), width: X(emptyBox.w), height: Y(emptyBox.h) }}>
+        <div className="absolute rounded-lg border border-[#d4d2ca] bg-[#ebeae5]" style={{ left: Xe(144), top: Ye(35), width: Xe(53), height: Ye(53) }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" strokeWidth={1.5} className="absolute inset-0 m-auto" style={{ width: "55%", height: "55%" }}>
             <rect x="3" y="6" width="18" height="12" rx="2" />
             <path d="M3 10h18M8 14h1" />
           </svg>
         </div>
-        <p className="absolute -translate-x-1/2 text-center font-display font-semibold text-[#191919]" style={{ left: "50%", top: Y(106), width: X(269), fontSize: FSX(14.4) }}>
+        <p className="absolute -translate-x-1/2 text-center font-display font-semibold text-[#191919]" style={{ left: "50%", top: Ye(106), width: Xe(269), fontSize: FSX(14.4) }}>
           Nenhum banco conectado
         </p>
-        <p className="absolute -translate-x-1/2 text-center font-subtitle text-[#191919]" style={{ left: "50%", top: Y(132), width: X(245), fontSize: FSX(11) }}>
+        <p className="absolute -translate-x-1/2 text-center font-subtitle text-[#191919]" style={{ left: "50%", top: Ye(132), width: Xe(245), fontSize: FSX(11) }}>
           Conecte sua conta para importar transações automaticamente.
         </p>
-        <div className="absolute flex items-center justify-center rounded-[10px] bg-[#41e98c]" style={{ left: X(25), top: Y(195), width: X(296), height: Y(41) }}>
+        <div className="absolute flex items-center justify-center rounded-[10px] bg-[#41e98c]" style={{ left: Xe(25), top: Ye(195), width: Xe(296), height: Ye(41) }}>
           <p className="font-display font-medium text-[#282828]" style={{ fontSize: FSX(15) }}>+ Conectar primeiro banco</p>
         </div>
       </div>
@@ -116,17 +128,27 @@ export function OpenFinanceScreen() {
   );
 }
 
-function CultivMark({ size = 35 }: { size?: number }) {
+function CultivMark({ width }: { width: string }) {
   return (
-    <div className="relative rounded-[20%] bg-[#242424]" style={{ width: X(size), height: FSX(size) }}>
+    <div className="relative rounded-[20%] bg-[#242424]" style={{ width, aspectRatio: "1 / 1" }}>
       <Image src="/images/brand/logo-icon.svg" alt="" fill className="object-contain p-[18%]" />
     </div>
   );
 }
 
 export function HomeScreen() {
+  // Same nested-basis issue as OpenFinanceScreen: each card needs its own
+  // local percentage basis, not the screen's, or its children collapse
+  // toward its top-left corner.
+  const spentBox = { w: 329, h: 245 };
+  const Xp = (px: number) => pct(px, spentBox.w);
+  const Yp = (px: number) => pct(px, spentBox.h);
+  const balanceBox = { w: 329, h: 230 };
+  const Xb = (px: number) => pct(px, balanceBox.w);
+  const Yb = (px: number) => pct(px, balanceBox.h);
+
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-[12.34%] bg-gradient-to-b from-[#0c3c2c] via-[52%] via-[#0aa85c] to-[#f1f5f4] [container-type:inline-size]">
+    <div className="relative h-full w-full overflow-hidden bg-gradient-to-b from-[#0c3c2c] via-[52%] via-[#0aa85c] to-[#f1f5f4] [container-type:inline-size]">
       <div className="absolute" style={{ left: X(27), top: Y(60), width: X(30), height: FSX(35) }}>
         <Image src="/images/brand/logo clara.svg" alt="Cultiv" fill className="object-contain object-left" />
       </div>
@@ -139,39 +161,39 @@ export function HomeScreen() {
         <span className="text-white" style={{ fontSize: FSX(9) }}>›</span>
       </div>
 
-      <div className="absolute overflow-hidden rounded-[7%] bg-[#cbe0d7]" style={{ left: X(30), top: Y(158), width: X(329), height: Y(245) }}>
-        <p className="absolute font-display font-medium text-[#6d6d6d]" style={{ left: X(20), top: Y(15), fontSize: FSX(8.3) }}>SOBROU EM SETEMBRO</p>
-        <p className="absolute font-display font-medium text-[#202020]" style={{ left: X(20), top: Y(38), fontSize: FSX(36.7) }}>
+      <div className="absolute overflow-hidden rounded-[7%] bg-[#cbe0d7]" style={{ left: X(30), top: Y(158), width: X(spentBox.w), height: Y(spentBox.h) }}>
+        <p className="absolute font-display font-medium text-[#6d6d6d]" style={{ left: Xp(20), top: Yp(15), fontSize: FSX(8.3) }}>SOBROU EM SETEMBRO</p>
+        <p className="absolute font-display font-medium text-[#202020]" style={{ left: Xp(20), top: Yp(38), fontSize: FSX(36.7) }}>
           R$ 0<span className="text-[#a4a4a4]" style={{ fontSize: FSX(21) }}>,00</span>
         </p>
-        <p className="absolute font-display font-medium text-[#505050]" style={{ left: X(30), top: Y(139), fontSize: FSX(10) }}>Entrou</p>
-        <p className="absolute font-display font-medium text-[#505050]" style={{ left: X(164), top: Y(139), fontSize: FSX(10) }}>Saiu</p>
-        <p className="absolute font-display font-medium text-[#202020]" style={{ left: X(20), top: Y(157), fontSize: FSX(12.8) }}>R$ 0,00</p>
-        <p className="absolute font-display font-medium text-[#202020]" style={{ left: X(153), top: Y(157), fontSize: FSX(12.8) }}>R$ 0,00</p>
-        <div className="absolute rounded-full bg-[#11b565]" style={{ left: X(21), top: Y(119), width: X(132), height: Y(7.6) }} />
-        <div className="absolute rounded-full bg-[#ee4f40]" style={{ left: X(155), top: Y(119), width: X(132), height: Y(7.6) }} />
-        <div className="absolute overflow-hidden rounded-full bg-white" style={{ left: X(21), top: Y(186), width: X(268), height: Y(31) }}>
+        <p className="absolute font-display font-medium text-[#505050]" style={{ left: Xp(30), top: Yp(139), fontSize: FSX(10) }}>Entrou</p>
+        <p className="absolute font-display font-medium text-[#505050]" style={{ left: Xp(164), top: Yp(139), fontSize: FSX(10) }}>Saiu</p>
+        <p className="absolute font-display font-medium text-[#202020]" style={{ left: Xp(20), top: Yp(157), fontSize: FSX(12.8) }}>R$ 0,00</p>
+        <p className="absolute font-display font-medium text-[#202020]" style={{ left: Xp(153), top: Yp(157), fontSize: FSX(12.8) }}>R$ 0,00</p>
+        <div className="absolute rounded-full bg-[#11b565]" style={{ left: Xp(21), top: Yp(119), width: Xp(132), height: Yp(7.6) }} />
+        <div className="absolute rounded-full bg-[#ee4f40]" style={{ left: Xp(155), top: Yp(119), width: Xp(132), height: Yp(7.6) }} />
+        <div className="absolute overflow-hidden rounded-full bg-white" style={{ left: Xp(21), top: Yp(186), width: Xp(268), height: Yp(31) }}>
           <p className="absolute inset-0 flex items-center justify-center font-display font-medium text-[#202020]" style={{ fontSize: FSX(10) }}>
             Ritmo de R$ ,00/dia · dia 14 de 30
           </p>
         </div>
       </div>
 
-      <div className="absolute overflow-hidden rounded-[7%] bg-[#cbe0d7]" style={{ left: X(30), top: Y(427), width: X(329), height: Y(230) }}>
-        <p className="absolute font-display font-medium text-[#6d6d6d]" style={{ left: X(20), top: Y(15), fontSize: FSX(8.3) }}>SALDO EM CONTAS</p>
-        <p className="absolute font-display font-medium text-[#202020]" style={{ left: X(20), top: Y(38), fontSize: FSX(36.7) }}>
+      <div className="absolute overflow-hidden rounded-[7%] bg-[#cbe0d7]" style={{ left: X(30), top: Y(427), width: X(balanceBox.w), height: Y(balanceBox.h) }}>
+        <p className="absolute font-display font-medium text-[#6d6d6d]" style={{ left: Xb(20), top: Yb(15), fontSize: FSX(8.3) }}>SALDO EM CONTAS</p>
+        <p className="absolute font-display font-medium text-[#202020]" style={{ left: Xb(20), top: Yb(38), fontSize: FSX(36.7) }}>
           R$ 0<span className="text-[#a4a4a4]" style={{ fontSize: FSX(21) }}>,00</span>
         </p>
-        <div className="absolute bg-[#b7c9c0]" style={{ left: X(22), top: Y(98), width: X(292), height: 1 }} />
-        <div className="absolute bg-[#b7c9c0]" style={{ left: X(22), top: Y(165), width: X(292), height: 1 }} />
-        <div className="absolute" style={{ left: X(22), top: Y(114) }}>
-          <CultivMark />
+        <div className="absolute bg-[#b7c9c0]" style={{ left: Xb(22), top: Yb(98), width: Xb(292), height: 1 }} />
+        <div className="absolute bg-[#b7c9c0]" style={{ left: Xb(22), top: Yb(165), width: Xb(292), height: 1 }} />
+        <div className="absolute" style={{ left: Xb(22), top: Yb(114) }}>
+          <CultivMark width={Xb(35)} />
         </div>
-        <p className="absolute font-display font-medium text-[#202020]" style={{ left: X(65), top: Y(122), fontSize: FSX(10) }}>Conta Cultiv</p>
-        <p className="absolute font-display font-light text-[#202020]" style={{ left: X(65), top: Y(133), fontSize: FSX(7.2) }}>Dinheiro vivo</p>
-        <p className="absolute font-display font-medium text-[#202020]" style={{ left: X(270), top: Y(124), fontSize: FSX(10) }}>0,00</p>
-        <p className="absolute font-display font-light text-[#202020]" style={{ left: X(26), top: Y(192), fontSize: FSX(9.7) }}>+ Conectar banco</p>
-        <p className="absolute font-display font-medium text-[#0d793a]" style={{ left: X(249), top: Y(193), fontSize: FSX(8.5) }}>Ver contas ›</p>
+        <p className="absolute font-display font-medium text-[#202020]" style={{ left: Xb(65), top: Yb(122), fontSize: FSX(10) }}>Conta Cultiv</p>
+        <p className="absolute font-display font-light text-[#202020]" style={{ left: Xb(65), top: Yb(133), fontSize: FSX(7.2) }}>Dinheiro vivo</p>
+        <p className="absolute font-display font-medium text-[#202020]" style={{ left: Xb(270), top: Yb(124), fontSize: FSX(10) }}>0,00</p>
+        <p className="absolute font-display font-light text-[#202020]" style={{ left: Xb(26), top: Yb(192), fontSize: FSX(9.7) }}>+ Conectar banco</p>
+        <p className="absolute font-display font-medium text-[#0d793a]" style={{ left: Xb(249), top: Yb(193), fontSize: FSX(8.5) }}>Ver contas ›</p>
       </div>
     </div>
   );

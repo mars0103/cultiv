@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Ribbon } from "@/components/decor/Ribbon";
+import { RevealLine, Reveal } from "@/components/decor/Reveal";
+import { EASE_OUT, staggerDelay } from "@/lib/motion";
 
 const FAQS = [
   {
@@ -26,57 +29,64 @@ export function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="mx-auto w-full max-w-3xl px-6 py-24 md:py-32">
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-center font-title text-2xl font-bold text-cultiv-ink md:text-[39px]"
-      >
-        Perguntas frequentes
-      </motion.h2>
+    <section id="faq" className="relative w-full overflow-hidden bg-white py-24 md:py-32">
+      <Ribbon path="arc" color="#AD0E44" strokeWidth={50} className="left-1/2 -top-20 h-[260px] w-[500px] -translate-x-1/2 opacity-80" />
 
-      <div className="mt-12 flex flex-col gap-4">
-        {FAQS.map((f, i) => {
-          const isOpen = open === i;
-          return (
-            <motion.div
-              key={f.q}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.06 }}
-              className="overflow-hidden rounded-[24px] bg-[#f4f6f5]"
-            >
-              <button
-                onClick={() => setOpen(isOpen ? null : i)}
-                className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-              >
-                <span className="font-display text-base font-bold text-cultiv-ink">{f.q}</span>
-                <motion.span
-                  animate={{ rotate: isOpen ? 45 : 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="shrink-0 text-2xl leading-none text-cultiv-accent"
+      <div className="relative z-10 mx-auto w-full max-w-3xl px-6">
+        <div className="text-center">
+          <Reveal duration={0.5} className="inline-flex items-center rounded-full bg-cultiv-pink/10 px-4 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-cultiv-pink">
+            Dúvidas
+          </Reveal>
+
+          <RevealLine as="h2" delay={0.1} className="mt-4 font-title text-4xl text-cultiv-ink md:text-6xl">
+            Antes que você pergunte
+          </RevealLine>
+          <Reveal delay={0.2} className="mx-auto mt-4 font-subtitle text-lg text-cultiv-muted md:text-xl">
+            As perguntas que mais recebemos, sem enrolação.
+          </Reveal>
+        </div>
+
+          <div className="mx-auto mt-12 flex max-w-2xl flex-col gap-4">
+            {FAQS.map((f, i) => {
+              const isOpen = open === i;
+              return (
+                <motion.div
+                  key={f.q}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.4, delay: staggerDelay(i), ease: EASE_OUT }}
+                  className="overflow-hidden rounded-[24px] bg-[#f4f6f5]"
                 >
-                  +
-                </motion.span>
-              </button>
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
+                  <button
+                    onClick={() => setOpen(isOpen ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors hover:bg-black/[0.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-cultiv-accent"
                   >
-                    <p className="px-6 pb-5 font-subtitle text-sm leading-relaxed text-cultiv-muted">{f.a}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          );
-        })}
+                    <span className="font-display text-base font-bold text-cultiv-ink">{f.q}</span>
+                    <motion.span
+                      animate={{ rotate: isOpen ? 45 : 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="shrink-0 text-2xl leading-none text-cultiv-accent"
+                    >
+                      +
+                    </motion.span>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <p className="px-6 pb-5 font-subtitle text-sm leading-relaxed text-cultiv-muted">{f.a}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })}
+          </div>
       </div>
     </section>
   );

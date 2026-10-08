@@ -85,7 +85,7 @@ export function ChatScreen({ inputOffset = 0 }: { inputOffset?: number } = {}) {
   const { exchange, phase, round } = useConversation();
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-[12.34%] bg-[#f4f6f5] [container-type:inline-size]">
+    <div className="relative h-full w-full overflow-hidden bg-[#f4f6f5] [container-type:inline-size]">
       {/* header */}
       <div
         className="absolute overflow-hidden rounded-full bg-white"
@@ -273,7 +273,7 @@ export function PhoneChatMockup({ className = "" }: { className?: string }) {
     <div className={`relative w-full ${className}`} style={{ aspectRatio: "445.488 / 972.675" }}>
       <motion.div
         className="absolute overflow-hidden"
-        style={{ left: "6.5%", top: "14.2%", width: "87.3%", height: "84.9%" }}
+        style={{ left: "8.1%", top: "14.6%", width: "83.8%", height: "83%", borderRadius: "8% / 3.7%" }}
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.7, delay: 0.5, ease: "easeOut" }}

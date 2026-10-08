@@ -13,13 +13,14 @@
   --color-cultiv-ink: #121b16;
   --color-cultiv-title: #24593a;
   --color-cultiv-muted: #526059;
+  --color-cultiv-pink: #ad0e44;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
-  --font-title: var(--font-syne);
+  --font-title: var(--font-inter);
 
   --color-cultiv-forest-dark: var(--color-cultiv-forest-dark);
   --color-cultiv-forest: var(--color-cultiv-forest);
@@ -29,6 +30,7 @@
   --color-cultiv-ink: var(--color-cultiv-ink);
   --color-cultiv-title: var(--color-cultiv-title);
   --color-cultiv-muted: var(--color-cultiv-muted);
+  --color-cultiv-pink: var(--color-cultiv-pink);
 }
 
 body {
@@ -37,15 +39,18 @@ body {
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
 }
 
-/* Real headings/titles use Syne. */
-.font-title {
-  font-family: var(--font-syne), sans-serif;
-}
-
-/* Everything else (buttons, labels, mockup UI chrome, body copy) is Inter —
- * kept as separate classes so call sites don't need to change, but both now
- * just resolve to the body's default Inter. */
+/* Whole site is Inter now — titles, subtitles, everything. */
 .font-display,
 .font-subtitle {
   font-family: var(--font-inter), sans-serif;
+}
+
+/* Titles: Inter Regular (not semibold/bold — this beats any font-bold
+ * utility class wherever it's still applied, since this unlayered rule
+ * outranks Tailwind's own @layer utilities) with tight -9% tracking, for
+ * a bigger, quieter, more editorial headline feel. */
+.font-title {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.09em;
 }

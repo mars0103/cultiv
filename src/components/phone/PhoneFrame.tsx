@@ -24,8 +24,8 @@ export function PhoneFrame({
   return (
     <div className={`relative w-full ${className}`} style={{ aspectRatio: "445.488 / 972.675" }}>
       <div
-        className="absolute overflow-hidden rounded-[10%]"
-        style={{ left: "6.5%", top: "14.2%", width: "87.3%", height: "84.9%" }}
+        className="absolute overflow-hidden"
+        style={{ left: "8.1%", top: "14.6%", width: "83.8%", height: "83%", borderRadius: "8% / 3.7%" }}
       >
         {children}
       </div>

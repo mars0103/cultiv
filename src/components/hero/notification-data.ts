@@ -12,10 +12,9 @@ export type NotificationItem = {
   delay: number;
 };
 
-// The phone mockup moved up (top 365 -> 310 in the 996-tall hero canvas);
-// shift the cards up by the same amount so they stay scattered around it.
-const PHONE_TOP_SHIFT = 70;
-
+// Positions are % of the Hero illustration box (Zen woman + phone), matching
+// the Figma composition: uber sits by her shoulder, shopee by her raised
+// hand, ifood lower-right, all floating around the meditating figure.
 export const notifications: NotificationItem[] = [
   {
     id: "shopee",
@@ -23,9 +22,9 @@ export const notifications: NotificationItem[] = [
     title: "Compras online",
     value: "R$ 79,00",
     date: "27 de outubro",
-    left: (525 / 1920) * 100,
-    top: ((475 - PHONE_TOP_SHIFT) / 996) * 100,
-    width: (315 / 1920) * 100,
+    left: 44,
+    top: 55,
+    width: 15,
     delay: 0.6,
   },
   {
@@ -34,9 +33,9 @@ export const notifications: NotificationItem[] = [
     title: "Alimentação",
     value: "R$ 58,00",
     date: "10 de setembro",
-    left: (1136 / 1920) * 100,
-    top: ((488 - PHONE_TOP_SHIFT) / 996) * 100,
-    width: (315 / 1920) * 100,
+    left: 70,
+    top: 74,
+    width: 14,
     delay: 1.15,
   },
   {
@@ -45,20 +44,9 @@ export const notifications: NotificationItem[] = [
     title: "Transporte",
     value: "R$ 23,00",
     date: "16 de setembro",
-    left: (440 / 1920) * 100,
-    top: ((698 - PHONE_TOP_SHIFT) / 996) * 100,
-    width: (315 / 1920) * 100,
+    left: 60,
+    top: 45,
+    width: 14.5,
     delay: 1.7,
-  },
-  {
-    id: "airbnb",
-    icon: "/images/hero/ellipse-airbnb.png",
-    title: "Hospedagem",
-    value: "R$ 345,00",
-    date: "9 de outubro",
-    left: (1193 / 1920) * 100,
-    top: ((793 - PHONE_TOP_SHIFT) / 996) * 100,
-    width: (315 / 1920) * 100,
-    delay: 2.25,
   },
 ];

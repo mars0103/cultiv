@@ -1,142 +1,83 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Image from "next/image";
-import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { motion } from "framer-motion";
 import { PhoneFrame } from "@/components/phone/PhoneFrame";
-import { OpenFinanceScreen, HomeScreen } from "./PhoneScreens";
-import { ChatScreen } from "@/components/hero/PhoneChatMockup";
-import { notifications } from "@/components/hero/notification-data";
+import { LogoScreen } from "./LogoScreen";
+import { MountainSky } from "@/components/decor/MountainSky";
+import { LeafRain } from "@/components/decor/LeafRain";
 
-// Step "01" (create account) is the Hero's own scroll-dissolve landing —
-// it dwells there, already showing this exact copy/phone, before handing
-// off here. Starting this section's own steps at "02" keeps that handoff a
-// same-vs-same boundary from Hero's side (its own hold) and a
-// different-content transition into this section, instead of both sides
-// showing an identical phone across the sticky-to-sticky scroll gap.
+// Mobile has no room for a pinned/scroll-jacked composition (see
+// StepsSection for the desktop version) — each step is just its own
+// scroll-triggered block, stacked normally down the page.
 const STEPS = [
+  {
+    n: "01",
+    title: "Cadastro em menos de 1 minuto",
+    desc: "Só seu e-mail uma senha e poucos dados, sem burocracia.",
+    character: "/images/mulherapontando1.svg",
+  },
   {
     n: "02",
     title: "Conecte seu banco com segurança",
     desc: "Via Open Finance, sem senhas ou dados sensíveis compartilhados com a gente.",
-    Screen: OpenFinanceScreen,
+    character: "/images/mulherapontando2.svg",
   },
   {
     n: "03",
     title: "Tudo aparece automaticamente",
     desc: "Ganhos, despesas, cartões - organizados sem você digitar nada.",
-    Screen: HomeScreen,
+    character: "/images/Mulher sorrindo olhando para frente.svg",
   },
   {
     n: "04",
     title: "Pergunte, a Flora responde",
     desc: "Converse com a Flora e entenda seus gastos em segundos, quando quiser.",
-    Screen: () => <ChatScreen inputOffset={92} />,
+    character: "/images/Mulher sorrindo e levantando os bracos.svg",
   },
 ];
 
-const cardPos = [
-  { left: "-8%", top: "6%" },
-  { left: "72%", top: "14%" },
-  { left: "-12%", top: "58%" },
-  { left: "70%", top: "66%" },
-];
-
 export function StepsShowcase() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const [step, setStep] = useState(0);
-
-  useMotionValueEvent(scrollYProgress, "change", (p) => {
-    const idx = Math.min(STEPS.length - 1, Math.max(0, Math.floor(p * STEPS.length)));
-    setStep((prev) => (prev !== idx ? idx : prev));
-  });
-
-  const active = STEPS[step];
-  const Screen = active.Screen;
-
   return (
-    <section ref={ref} className="relative bg-white" style={{ height: `${STEPS.length * 100}vh` }}>
-      <div className="sticky top-0 flex h-screen w-full items-center overflow-hidden">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-2 md:gap-16">
-          <div className="order-2 md:order-1">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.4 }}
-              >
-                <p className="font-title text-[90px] font-bold leading-none text-cultiv-accent md:text-[120px]">
-                  {active.n}
-                </p>
-                <h2 className="mt-2 font-title text-2xl font-bold text-cultiv-ink md:text-4xl">
-                  {active.title}
-                </h2>
-                <p className="mt-4 max-w-md font-subtitle text-base text-cultiv-title md:text-lg">{active.desc}</p>
-              </motion.div>
-            </AnimatePresence>
+    <section className="relative w-full overflow-hidden md:hidden">
+      <MountainSky>
+        <LeafRain count={5} />
+      </MountainSky>
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="relative z-10 px-6 pt-14 text-center font-title text-2xl font-bold text-cultiv-ink"
+      >
+        Em apenas 04 passos você terá acesso a uma vida financeira mais organizada!
+      </motion.h2>
 
-            {/* 4 dots total (step "01" is Hero's own dwell, not tracked in
-                STEPS here) so the dot count stays consistent across the
-                Hero -> steps handoff instead of jumping from 4 to 3. */}
-            <div className="mt-8 flex gap-2">
-              {[0, 1, 2, 3].map((i) => (
-                <span
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === step + 1 ? "w-8 bg-cultiv-accent" : "w-4 bg-gray-200"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="relative order-1 mx-auto w-[220px] sm:w-[260px] md:order-2 md:w-[300px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, scale: 0.94 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.35 }}
-              >
-                <PhoneFrame>
-                  <Screen />
-                </PhoneFrame>
-              </motion.div>
-            </AnimatePresence>
-
-            {step === 1 && (
-              <div className="pointer-events-none absolute inset-0 hidden lg:block">
-                {notifications.slice(0, 4).map((n, i) => (
-                  <motion.div
-                    key={n.id}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.15 * i }}
-                    className="absolute w-[190px] rounded-xl border border-cultiv-accent bg-white p-2 shadow-lg"
-                    style={cardPos[i]}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full">
-                        <Image src={n.icon} alt="" fill className="object-cover" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-baseline justify-between gap-1">
-                          <p className="truncate font-sans text-[10px] font-bold text-cultiv-muted">{n.title}</p>
-                          <p className="shrink-0 font-sans text-[10px] font-bold text-cultiv-muted">{n.value}</p>
-                        </div>
-                        <p className="truncate font-sans text-[9px] text-cultiv-muted">{n.date}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+      <div className="relative z-10 flex flex-col gap-16 px-6 py-12">
+        {STEPS.map((s, i) => (
+          <motion.div
+            key={s.n}
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-15%" }}
+            transition={{ duration: 0.6, delay: i * 0.05 }}
+            className="flex flex-col items-center gap-4"
+          >
+            <p className="font-title text-6xl font-bold leading-none text-cultiv-ink">{s.n}</p>
+            <h3 className="text-center font-title text-xl font-bold text-cultiv-ink">{s.title}</h3>
+            <p className="max-w-xs text-center font-subtitle text-sm text-cultiv-title">{s.desc}</p>
+            <div className="flex w-full items-end justify-center gap-2">
+              <div className="h-[180px] w-[130px] shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={s.character} alt="" className="h-full w-full object-contain object-bottom" />
               </div>
-            )}
-          </div>
-        </div>
+              <div className="w-[110px] shrink-0">
+                <PhoneFrame>
+                  <LogoScreen />
+                </PhoneFrame>
+              </div>
+            </div>
+          </motion.div>
+        ))}
       </div>
     </section>
   );
