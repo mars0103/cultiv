@@ -22,8 +22,8 @@ export function GoalsSection() {
 
   return (
     <section className="relative w-full overflow-hidden bg-[#F5FBF1] py-24 md:py-32">
-      <Ribbon path="hook" color="#AD0E44" strokeWidth={64} className="-left-24 -top-16 h-[420px] w-[420px] opacity-90" rotate={-12} />
-      <Ribbon path="wave" color="#C1FFBC" strokeWidth={90} className="-right-32 bottom-0 h-[380px] w-[620px] opacity-80" delay={0.2} />
+      <Ribbon path="hook" color="#AD0E44" strokeWidth={64} className="left-0 top-8 hidden h-[300px] w-[300px] opacity-65 md:block" rotate={-12} />
+      <Ribbon path="wave" color="#C1FFBC" strokeWidth={90} className="bottom-8 right-0 hidden h-[280px] w-[460px] opacity-60 md:block" delay={0.2} />
       <LeafRain count={7} />
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-2 md:gap-16 md:px-16">

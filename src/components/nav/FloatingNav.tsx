@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { SIGNUP_URL } from "@/lib/links";
 
 const NAV_LINKS = [
   { label: "Como funciona", href: "#como-funciona" },
@@ -25,9 +26,9 @@ export function FloatingNav() {
             </a>
           ))}
         </nav>
-        <button className="rounded-full bg-cultiv-forest-dark px-5 py-2 font-display text-xs font-bold text-white transition-transform hover:scale-[1.03] active:scale-[0.98] md:px-6 md:py-2.5 md:text-sm">
+        <a href={SIGNUP_URL} className="rounded-full bg-cultiv-forest-dark px-5 py-2 font-display text-xs font-bold text-white transition-transform hover:scale-[1.03] active:scale-[0.98] md:px-6 md:py-2.5 md:text-sm">
           Cadastrar
-        </button>
+        </a>
       </div>
     </div>
   );

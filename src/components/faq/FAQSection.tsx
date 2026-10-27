@@ -30,7 +30,7 @@ export function FAQSection() {
 
   return (
     <section id="faq" className="relative w-full overflow-hidden bg-white py-24 md:py-32">
-      <Ribbon path="arc" color="#AD0E44" strokeWidth={50} className="left-1/2 -top-20 h-[260px] w-[500px] -translate-x-1/2 opacity-80" />
+      <Ribbon path="arc" color="#AD0E44" strokeWidth={50} className="right-8 top-8 hidden h-[150px] w-[260px] opacity-60 md:block" />
 
       <div className="relative z-10 mx-auto w-full max-w-3xl px-6">
         <div className="text-center">

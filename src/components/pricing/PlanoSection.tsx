@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Ribbon } from "@/components/decor/Ribbon";
 import { RevealLine, Reveal } from "@/components/decor/Reveal";
 import { EASE_OUT, staggerDelay } from "@/lib/motion";
+import { SIGNUP_URL } from "@/lib/links";
 
 const FEATURES = [
   { title: "Metas ilimitadas", text: "crie quantos objetivos quiser" },
@@ -16,8 +17,8 @@ const FEATURES = [
 export function PlanoSection() {
   return (
     <section id="plano" className="relative w-full overflow-hidden bg-[#F0FBEA] py-24 md:py-32">
-      <Ribbon path="s" color="#AD0E44" strokeWidth={50} className="-left-16 top-10 h-[220px] w-[520px] opacity-80" rotate={-6} />
-      <Ribbon path="hook" color="#00C853" strokeWidth={50} className="-right-20 -bottom-10 h-[360px] w-[360px] opacity-60" delay={0.2} rotate={30} />
+      <Ribbon path="s" color="#AD0E44" strokeWidth={50} className="left-0 top-8 hidden h-[160px] w-[380px] opacity-70 md:block" rotate={-6} />
+      <Ribbon path="hook" color="#00C853" strokeWidth={50} className="bottom-8 right-0 hidden h-[280px] w-[280px] opacity-50 md:block" delay={0.2} rotate={30} />
 
       <div className="relative z-10 mx-auto w-full max-w-5xl px-6 text-center">
         <Reveal duration={0.5} className="inline-flex items-center rounded-full bg-cultiv-pink/10 px-4 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-cultiv-pink">
@@ -73,9 +74,9 @@ export function PlanoSection() {
                   Esse aqui te devolve dinheiro no fim do mês.
                 </p>
 
-                <button className="mt-8 flex w-full items-center justify-center gap-3 rounded-2xl bg-cultiv-accent py-4 font-display text-lg font-bold text-[#06150f] transition-transform hover:scale-[1.02]">
+                <a href={SIGNUP_URL} className="mt-8 flex w-full items-center justify-center gap-3 rounded-2xl bg-cultiv-accent py-4 font-display text-lg font-bold text-[#06150f] transition-transform hover:scale-[1.02]">
                   Começar agora <span aria-hidden="true">→</span>
-                </button>
+                </a>
                 <p className="mt-5 text-center font-display text-base font-bold text-cultiv-accent">14 dias grátis para testar</p>
                 <p className="mx-auto mt-1 max-w-sm text-center font-subtitle text-sm leading-relaxed text-white/45">
                   *Valor mensal equivalente. Cobrança única anual de R$ 349,90.

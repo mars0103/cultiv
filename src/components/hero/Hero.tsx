@@ -11,6 +11,7 @@ import { LogoScreen } from "@/components/steps/LogoScreen";
 import { MountainSky } from "@/components/decor/MountainSky";
 import { LeafRain } from "@/components/decor/LeafRain";
 import { EASE_OUT } from "@/lib/motion";
+import { SIGNUP_URL } from "@/lib/links";
 
 const AVATAR_COLORS = ["#F4A261", "#6C7CF0", "#AD0E44"];
 
@@ -133,13 +134,14 @@ function MobileHeroJourney() {
             <p className="mx-auto mt-3 max-w-[350px] font-subtitle text-sm leading-snug text-cultiv-title">
               Conecte seu banco e deixe o Cultiv organizar seu mundo financeiro automaticamente.
             </p>
-            <motion.button
+            <motion.a
+              href={SIGNUP_URL}
               whileTap={{ y: 2 }}
               className="relative z-10 mx-auto mt-4 rounded-full bg-cultiv-mint px-8 py-3 font-display text-[14px] font-bold text-[#1e1e1e]"
               style={{ boxShadow: "-4px 5px 0px 0px black" }}
             >
               Teste por 14 dias grátis
-            </motion.button>
+            </motion.a>
 
             <div className="relative mt-5 h-[145px] w-full shrink-0 overflow-hidden rounded-[26px] shadow-lg">
               <Image
@@ -420,10 +422,10 @@ export function Hero() {
                 transition={{ duration: 0.6, delay: 0.42, ease: EASE_OUT }}
                 className="mt-5 flex gap-3"
               >
-                <button className="group flex items-center gap-1.5 rounded-full bg-cultiv-forest-dark px-6 py-3 font-display text-sm font-bold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                <a href={SIGNUP_URL} className="group flex items-center gap-1.5 rounded-full bg-cultiv-forest-dark px-6 py-3 font-display text-sm font-bold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]">
                   Teste por 14 dias grátis
                   <span className="inline-block transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
-                </button>
+                </a>
                 <a
                   href="#como-funciona"
                   className="flex items-center justify-center rounded-full border border-cultiv-ink/15 bg-white px-6 py-3 font-display text-sm font-bold text-cultiv-ink transition-colors hover:bg-cultiv-mint/30 active:scale-[0.98]"
