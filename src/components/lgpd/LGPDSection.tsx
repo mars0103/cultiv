@@ -46,7 +46,7 @@ export function LGPDSection() {
         Seus dados nunca ficam com a gente
       </RevealLine>
       <Reveal delay={0.1} className="relative z-10 mt-4 max-w-lg font-subtitle text-base text-white/70 md:text-xl">
-        A Cultiv só lê o que precisa pra te mostrar seus números — nunca move um centavo, nunca vende um dado.
+        A Cultiv só lê o que precisa pra te mostrar seus números. Nunca move um centavo e nunca vende um dado.
       </Reveal>
 
       <div className="relative z-10 mx-auto mt-14 flex w-full max-w-5xl flex-col items-stretch justify-center gap-4 md:flex-row md:items-center md:gap-4">

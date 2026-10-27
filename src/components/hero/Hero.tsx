@@ -4,8 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
-import { ChatScreen, PhoneChatMockup } from "./PhoneChatMockup";
-import { notifications } from "./notification-data";
+import { ChatScreen } from "./PhoneChatMockup";
 import { PhoneFrame } from "@/components/phone/PhoneFrame";
 import { SignupScreen, OpenFinanceScreen, HomeScreen } from "@/components/steps/PhoneScreens";
 import { LogoScreen } from "@/components/steps/LogoScreen";
@@ -39,7 +38,7 @@ const STEPS = [
   {
     n: "03",
     title: "Tudo aparece automaticamente",
-    desc: "Ganhos, despesas, cartões - organizados sem você digitar nada.",
+    desc: "Ganhos, despesas e cartões organizados sem você digitar nada.",
     character: "/images/Mulher sorrindo olhando para frente.svg",
     Screen: HomeScreen,
   },
@@ -62,6 +61,206 @@ const GROW_FRACTION = GROW_UNITS / TOTAL_UNITS;
 
 const clampedLerp = (p: number, start: number, end: number, from: number, to: number) =>
   from + (to - from) * Math.min(1, Math.max(0, (p - start) / (end - start)));
+
+const MOBILE_GROW_FRACTION = 0.24;
+
+function MobileHeroJourney() {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const cardSlotRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: wrapperRef, offset: ["start start", "end end"] });
+  const [progress, setProgress] = useState(0);
+  const [rects, setRects] = useState({ left: 0, top: 0, width: 0, height: 0, containerW: 0, containerH: 0 });
+
+  useMotionValueEvent(scrollYProgress, "change", setProgress);
+
+  useEffect(() => {
+    function measure() {
+      const sticky = stickyRef.current;
+      const slot = cardSlotRef.current;
+      if (!sticky || !slot) return;
+
+      const stickyRect = sticky.getBoundingClientRect();
+      const slotRect = slot.getBoundingClientRect();
+      setRects({
+        left: slotRect.left - stickyRect.left,
+        top: slotRect.top - stickyRect.top,
+        width: slotRect.width,
+        height: slotRect.height,
+        containerW: stickyRect.width,
+        containerH: stickyRect.height,
+      });
+    }
+
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const growP = Math.min(1, progress / MOBILE_GROW_FRACTION);
+  const growE = clampedLerp(growP, 0.1, 0.82, 0, 1);
+  const cardLeft = `${rects.left * (1 - growE)}px`;
+  const cardTop = `${rects.top * (1 - growE)}px`;
+  const cardWidth = `${rects.width + (rects.containerW - rects.width) * growE}px`;
+  const cardHeight = `${rects.height + (rects.containerH - rects.height) * growE}px`;
+  const cardRadius = `${clampedLerp(growE, 0, 1, 26, 0)}px`;
+
+  const heroOpacity = clampedLerp(growP, 0.04, 0.48, 1, 0);
+  const heroY = clampedLerp(growP, 0.04, 0.48, 0, -22);
+  const inSteps = progress >= MOBILE_GROW_FRACTION;
+  const stepsP = Math.min(1, Math.max(0, (progress - MOBILE_GROW_FRACTION) / (1 - MOBILE_GROW_FRACTION)));
+  const stepIndex = Math.min(STEPS.length - 1, Math.floor(stepsP * STEPS.length));
+  const activeStep = STEPS[stepIndex];
+  const ActiveScreen = activeStep.Screen;
+
+  const phoneLeft = `${clampedLerp(growP, 0.1, 0.82, 26, 18)}%`;
+  const phoneTop = `${clampedLerp(growP, 0.1, 0.82, 9, 29)}%`;
+  const phoneWidth = `${clampedLerp(growP, 0.1, 0.82, 48, 64)}%`;
+
+  const transitionOpacity =
+    clampedLerp(growP, 0.32, 0.56, 0, 1) * (1 - clampedLerp(growP, 0.82, 1, 0, 1));
+
+  return (
+    <div ref={wrapperRef} className="relative h-[520svh] w-full md:hidden">
+      <div ref={stickyRef} className="sticky top-0 h-[100svh] w-full overflow-hidden bg-gradient-to-b from-[#EAFBEE] to-white">
+        <LeafRain count={7} />
+
+        <motion.div className="absolute inset-0 z-20" style={{ opacity: heroOpacity, y: heroY }}>
+          <div className="mx-auto flex h-full w-full max-w-[430px] flex-col px-5 pb-4 pt-24 text-center">
+            <h1 className="font-title text-[36px] leading-[0.98] text-cultiv-ink">
+              Sua vida financeira muito mais organizada com o Cultiv
+            </h1>
+            <p className="mx-auto mt-3 max-w-[350px] font-subtitle text-sm leading-snug text-cultiv-title">
+              Conecte seu banco e deixe o Cultiv organizar seu mundo financeiro automaticamente.
+            </p>
+            <motion.button
+              whileTap={{ y: 2 }}
+              className="relative z-10 mx-auto mt-4 rounded-full bg-cultiv-mint px-8 py-3 font-display text-[14px] font-bold text-[#1e1e1e]"
+              style={{ boxShadow: "-4px 5px 0px 0px black" }}
+            >
+              Teste por 14 dias grátis
+            </motion.button>
+
+            <div className="relative mt-5 h-[145px] w-full shrink-0 overflow-hidden rounded-[26px] shadow-lg">
+              <Image
+                src="/images/photo-hero-woman.jpg"
+                alt="Mulher sorrindo usando o celular"
+                fill
+                priority
+                sizes="(max-width: 767px) calc(100vw - 40px), 1px"
+                className="object-cover object-[50%_42%]"
+              />
+            </div>
+
+            <div ref={cardSlotRef} className="invisible mt-3 min-h-[245px] w-full flex-1 rounded-[26px]" />
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="absolute z-10 overflow-hidden shadow-xl"
+          style={{ left: cardLeft, top: cardTop, width: cardWidth, height: cardHeight, borderRadius: cardRadius }}
+        >
+          <MountainSky>
+            <LeafRain count={7} />
+          </MountainSky>
+
+          <motion.div
+            className="absolute z-10"
+            style={{ left: phoneLeft, top: phoneTop, width: phoneWidth }}
+          >
+            <PhoneFrame>
+              <AnimatePresence mode="sync">
+                {inSteps ? (
+                  <motion.div
+                    key={`mobile-step-${stepIndex}`}
+                    className="absolute inset-0"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.32, ease: "easeOut" }}
+                  >
+                    <ActiveScreen />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="mobile-chat"
+                    className="absolute inset-0"
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.32, ease: "easeOut" }}
+                  >
+                    <ChatScreen />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </PhoneFrame>
+          </motion.div>
+        </motion.div>
+
+        {!inSteps && (
+          <motion.p
+            className="absolute left-1/2 top-[12%] z-20 w-[88%] -translate-x-1/2 text-center font-title text-[32px] leading-[1.05] text-cultiv-ink"
+            style={{ opacity: transitionOpacity }}
+          >
+            4 passos pra uma vida financeira organizada
+          </motion.p>
+        )}
+
+        {inSteps && (
+          <div className="absolute left-1/2 top-[11%] z-20 w-[90%] -translate-x-1/2 text-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`mobile-copy-${stepIndex}`}
+                initial={{ opacity: 0, x: -28 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 28 }}
+                transition={{ duration: 0.34, ease: "easeOut" }}
+              >
+                <p className="font-title text-5xl font-bold leading-none text-cultiv-ink">{activeStep.n}</p>
+                <h2 className="mx-auto mt-2 max-w-[330px] font-title text-[23px] font-bold leading-tight text-cultiv-ink">
+                  {activeStep.title}
+                </h2>
+                <p className="mx-auto mt-2 max-w-[310px] font-subtitle text-[13px] leading-snug text-cultiv-title">
+                  {activeStep.desc}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="mt-3 flex justify-center gap-2" aria-label={`Passo ${stepIndex + 1} de ${STEPS.length}`}>
+              {STEPS.map((step, index) => (
+                <span
+                  key={step.n}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    index === stepIndex ? "w-8 bg-cultiv-forest-dark" : "w-4 bg-white/80"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {inSteps && (
+          <div className="absolute bottom-0 left-[-8%] z-20 h-[52%] w-[62%]">
+            <AnimatePresence mode="popLayout">
+              <motion.div
+                key={`mobile-character-${stepIndex}`}
+                className="absolute inset-0"
+                initial={{ opacity: 0, x: -45 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -45 }}
+                transition={{ duration: 0.42, ease: "easeOut" }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={activeStep.character} alt="" className="h-full w-full object-contain object-bottom" />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function Hero() {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -212,7 +411,7 @@ export function Hero() {
                 className="mt-5 max-w-2xl font-subtitle text-base leading-relaxed text-cultiv-title lg:text-lg"
               >
                 Conecte seu banco, <Highlight>veja seus gastos</Highlight> automaticamente e{" "}
-                <Highlight>converse com a Flora</Highlight> sempre que quiser — tudo em um só lugar, sem planilhas.
+                <Highlight>converse com a Flora</Highlight> sempre que quiser, tudo em um só lugar e sem planilhas.
               </motion.p>
 
               <motion.div
@@ -222,7 +421,7 @@ export function Hero() {
                 className="mt-5 flex gap-3"
               >
                 <button className="group flex items-center gap-1.5 rounded-full bg-cultiv-forest-dark px-6 py-3 font-display text-sm font-bold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]">
-                  Teste por 7 dias grátis
+                  Teste por 14 dias grátis
                   <span className="inline-block transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
                 </button>
                 <a
@@ -414,68 +613,7 @@ export function Hero() {
         )}
       </div>
 
-      {/* ---------- MOBILE: simple static stack, no scroll-jack ---------- */}
-      <div className="relative flex w-full flex-col items-center gap-6 overflow-hidden bg-gradient-to-b from-[#EAFBEE] to-white px-6 pb-16 pt-20 md:hidden">
-        <LeafRain count={6} />
-
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative z-10 text-center font-title text-[38px] leading-[1.1] text-cultiv-ink"
-        >
-          Sua vida financeira muito mais organizada com o Cultiv
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="relative z-10 text-center font-subtitle text-base text-cultiv-title"
-        >
-          Conecte seu banco e deixe o Cultiv organizar seu mundo financeiro automaticamente.
-        </motion.p>
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          whileTap={{ y: 2 }}
-          className="relative z-10 rounded-full bg-cultiv-mint px-8 py-3.5 font-display text-[15px] font-bold text-[#1e1e1e]"
-          style={{ boxShadow: "-4px 5px 0px 0px black" }}
-        >
-          Teste por 7 dias grátis
-        </motion.button>
-
-        <div className="relative z-10 mt-4 w-[220px]">
-          <PhoneChatMockup />
-        </div>
-
-        <div className="relative z-10 grid w-full max-w-md grid-cols-1 gap-3">
-          {notifications.map((n, i) => (
-            <motion.div
-              key={n.id}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="flex items-center gap-3 rounded-2xl border border-cultiv-accent bg-white p-3"
-            >
-              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full">
-                <Image src={n.icon} alt="" fill className="object-cover" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className="truncate font-sans text-[13px] font-bold text-cultiv-muted">{n.title}</p>
-                  <p className="shrink-0 font-sans text-[13px] font-bold text-cultiv-muted">{n.value}</p>
-                </div>
-                <p className="truncate font-sans text-[12px] text-cultiv-muted">{n.date}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
+      <MobileHeroJourney />
     </section>
   );
 }

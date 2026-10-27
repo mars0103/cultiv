@@ -1,6 +1,5 @@
 import { FloatingNav } from "@/components/nav/FloatingNav";
 import { Hero } from "@/components/hero/Hero";
-import { StepsShowcase } from "@/components/steps/StepsShowcase";
 import { GoalsSection } from "@/components/goals/GoalsSection";
 import { WhatsAppSection } from "@/components/whatsapp/WhatsAppSection";
 import { LGPDSection } from "@/components/lgpd/LGPDSection";
@@ -14,7 +13,6 @@ export default function Home() {
       <FloatingNav />
       <div id="como-funciona">
         <Hero />
-        <StepsShowcase />
       </div>
       <GoalsSection />
       <WhatsAppSection />

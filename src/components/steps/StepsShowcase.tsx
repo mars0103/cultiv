@@ -25,7 +25,7 @@ const STEPS = [
   {
     n: "03",
     title: "Tudo aparece automaticamente",
-    desc: "Ganhos, despesas, cartões - organizados sem você digitar nada.",
+    desc: "Ganhos, despesas e cartões organizados sem você digitar nada.",
     character: "/images/Mulher sorrindo olhando para frente.svg",
   },
   {

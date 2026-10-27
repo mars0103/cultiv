@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Cultiv — Sua vida financeira muito mais organizada",
+  title: "Cultiv | Sua vida financeira muito mais organizada",
   description:
     "Conecte seu banco e deixe a Cultiv organizar seu mundo financeiro automaticamente.",
 };

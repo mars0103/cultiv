@@ -22,7 +22,7 @@ const SCRIPT: Exchange[] = [
   },
   {
     q: "Resumo dos gastos",
-    a: "Alimentação R$ 180, Transporte R$ 95, Compras R$ 140 — no total, R$ 415 esse mês 📊",
+    a: "Alimentação R$ 180, Transporte R$ 95, Compras R$ 140. No total, R$ 415 esse mês 📊",
   },
   {
     q: "Como estão minhas finanças?",

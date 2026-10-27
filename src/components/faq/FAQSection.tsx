@@ -9,7 +9,7 @@ import { EASE_OUT, staggerDelay } from "@/lib/motion";
 const FAQS = [
   {
     q: "É seguro conectar meu banco na Cultiv?",
-    a: "Sim. Usamos o Open Finance, regulado pelo Banco Central, com acesso somente leitura — a Cultiv nunca movimenta seu dinheiro nem tem acesso às suas senhas bancárias.",
+    a: "Sim. Usamos o Open Finance, regulado pelo Banco Central, com acesso somente leitura. A Cultiv nunca movimenta seu dinheiro nem tem acesso às suas senhas bancárias.",
   },
   {
     q: "A Cultiv guarda meus dados financeiros?",
@@ -21,7 +21,7 @@ const FAQS = [
   },
   {
     q: "Preciso trocar de banco para usar a Cultiv?",
-    a: "Não! A Cultiv se conecta aos bancos que você já usa — ela organiza tudo automaticamente, sem que você precise abrir uma nova conta.",
+    a: "Não! A Cultiv se conecta aos bancos que você já usa e organiza tudo automaticamente, sem que você precise abrir uma nova conta.",
   },
 ];
 

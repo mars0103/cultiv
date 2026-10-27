@@ -7,11 +7,11 @@ import { RevealLine, Reveal } from "@/components/decor/Reveal";
 // Placeholder testimonials — swap for real customer feedback before launch.
 const FEEDBACKS: Feedback[] = [
   { name: "Marina", city: "São Paulo, SP", quote: "Finalmente entendo pra onde meu dinheiro vai. A Flora resume tudo num minuto." },
-  { name: "Lucas", city: "Belo Horizonte, MG", quote: "Conectei o banco e pronto — nunca mais precisei abrir uma planilha." },
+  { name: "Lucas", city: "Belo Horizonte, MG", quote: "Conectei o banco e pronto. Nunca mais precisei abrir uma planilha." },
   { name: "Beatriz", city: "Curitiba, PR", quote: "O jeito que ela organiza os gastos por categoria mudou como eu economizo." },
   { name: "Rafael", city: "Recife, PE", quote: "Pergunto pelo WhatsApp mesmo, sem precisar nem abrir o app. Muito prático." },
   { name: "Camila", city: "Porto Alegre, RS", quote: "Achei que fosse mais um app de finanças, mas é bem mais simples que os outros." },
-  { name: "Diego", city: "Florianópolis, SC", quote: "Gosto de saber que os dados ficam só comigo — isso pesou muito na escolha." },
+  { name: "Diego", city: "Florianópolis, SC", quote: "Gosto de saber que os dados ficam só comigo. Isso pesou muito na escolha." },
 ];
 
 const firstColumn = FEEDBACKS.slice(0, 2);

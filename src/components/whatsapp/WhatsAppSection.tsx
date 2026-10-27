@@ -35,11 +35,11 @@ export function WhatsAppSection() {
           Sua vida financeira cabe numa conversa de WhatsApp
         </RevealLine>
         <RevealLine as="p" delay={0.08} className="mx-auto mt-4 max-w-lg font-subtitle text-base text-cultiv-muted md:text-xl">
-          Sem abrir o app. Pergunte pra Flora quanto gastou, o que pode cortar ou quanto já guardou — ela responde na hora.
+          Sem abrir o app. Pergunte pra Flora quanto gastou, o que pode cortar ou quanto já guardou. Ela responde na hora.
         </RevealLine>
       </div>
 
-      <div className="relative z-10 mx-auto mt-10 flex w-full max-w-md flex-col items-center gap-8 px-6 md:absolute md:inset-0 md:mt-0 md:block md:max-w-none md:px-0">
+      <div className="relative z-10 mx-auto mt-10 flex w-full max-w-md flex-col items-center gap-0 px-6 md:absolute md:inset-0 md:mt-0 md:block md:max-w-none md:px-0">
         <motion.div
           className="relative w-[220px] shrink-0 md:absolute md:bottom-0 md:left-[18%] md:h-[62%] md:w-auto"
           initial={{ opacity: 0, x: -60 }}
@@ -52,7 +52,7 @@ export function WhatsAppSection() {
         </motion.div>
 
         <motion.div
-          className="w-[260px] shrink-0 overflow-hidden rounded-[28px] shadow-2xl md:absolute md:bottom-[12%] md:left-[52%] md:w-[300px]"
+          className="-mt-1 w-[260px] shrink-0 overflow-hidden rounded-[28px] shadow-2xl md:absolute md:bottom-[12%] md:left-[52%] md:mt-0 md:w-[300px]"
           style={{ aspectRatio: "340 / 400" }}
           initial={{ opacity: 0, x: 60 }}
           whileInView={{ opacity: 1, x: 0 }}

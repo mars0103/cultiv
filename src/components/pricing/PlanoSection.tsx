@@ -6,11 +6,11 @@ import { RevealLine, Reveal } from "@/components/decor/Reveal";
 import { EASE_OUT, staggerDelay } from "@/lib/motion";
 
 const FEATURES = [
-  "Conexão ilimitada de bancos e cartões",
-  "Flora, sua IA financeira, no app e no WhatsApp",
-  "Categorização automática de gastos",
-  "Relatórios mensais e ritmo de gastos",
-  "Seus dados nunca são vendidos ou compartilhados",
+  { title: "Metas ilimitadas", text: "crie quantos objetivos quiser" },
+  { title: "Todos os agentes", text: "acesso completo às ferramentas da Cultiv" },
+  { title: "WhatsApp sem limites", text: "converse com a Flora sempre que precisar" },
+  { title: "Bancos e cartões", text: "conexões ilimitadas via Open Finance" },
+  { title: "Acompanhamento automático", text: "categorias e relatórios dos seus gastos" },
 ];
 
 export function PlanoSection() {
@@ -21,14 +21,14 @@ export function PlanoSection() {
 
       <div className="relative z-10 mx-auto w-full max-w-5xl px-6 text-center">
         <Reveal duration={0.5} className="inline-flex items-center rounded-full bg-cultiv-pink/10 px-4 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-cultiv-pink">
-          Sem letra miúda
+          Plano Cultiv
         </Reveal>
 
         <RevealLine as="h2" delay={0.1} className="mt-4 font-title text-4xl text-cultiv-ink md:text-6xl">
-          Um preço. Tudo incluso. Cancele quando quiser.
+          Acesso completo para organizar sua vida financeira
         </RevealLine>
         <Reveal delay={0.2} className="mx-auto mt-4 max-w-lg font-subtitle text-lg text-cultiv-muted md:text-xl">
-          Menos que um streaming, pra organizar o resto de todos os outros gastos.
+          Todos os agentes, metas ilimitadas e acompanhamento pelo WhatsApp, sem limite de mensagens.
         </Reveal>
 
         <div className="relative mt-16 flex flex-col items-center justify-center gap-4 md:flex-row md:items-end md:justify-center md:gap-0">
@@ -48,36 +48,60 @@ export function PlanoSection() {
               whileInView={{ opacity: 1, y: 0, rotate: 0, scale: 1 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.7, delay: 0.1, ease: EASE_OUT }}
-              className="relative order-1 mx-auto w-full max-w-lg shrink-0 overflow-hidden rounded-[33px] bg-cultiv-forest-dark px-8 py-10 text-left text-white shadow-2xl md:order-2"
+              className="relative order-1 mx-auto w-full max-w-xl shrink-0 overflow-hidden rounded-[33px] border border-cultiv-accent/40 bg-[#06150f] text-left text-white shadow-2xl md:order-2"
             >
-              <p className="font-display text-sm font-medium uppercase tracking-wide text-cultiv-mint">Cultiv Premium</p>
-              <div className="mt-3 flex items-end gap-2">
-                <p className="font-display text-5xl font-bold">R$ 19,90</p>
-                <p className="pb-2 text-white/70">/mês</p>
-              </div>
-              <p className="mt-1 font-subtitle text-sm text-white/70">7 dias grátis, cancele quando quiser.</p>
+              <div className="px-7 py-9 md:px-10 md:py-11">
+                <p className="inline-flex rounded-xl bg-cultiv-accent px-5 py-2.5 font-display text-sm font-bold uppercase tracking-[0.08em] text-[#06150f]">
+                  Plano Cultiv
+                </p>
+                <h3 className="mt-7 font-display text-3xl font-bold text-white md:text-4xl">Acesso completo</h3>
+                <p className="mt-3 max-w-lg font-subtitle text-base leading-relaxed text-white/60 md:text-lg">
+                  Todos os agentes, metas ilimitadas e acompanhamento pelo WhatsApp, sem limite de mensagens.
+                </p>
 
-              <ul className="mt-8 flex flex-col gap-3">
+                <p className="mt-8 font-subtitle text-base text-white/55">Plano anual por apenas</p>
+                <div className="mt-1 flex items-end gap-2">
+                  <span className="pb-3 font-display text-2xl font-bold text-white/65">R$</span>
+                  <span className="font-display text-[72px] font-bold leading-none tracking-[-0.08em] text-cultiv-accent md:text-[92px]">
+                    29,15
+                  </span>
+                  <span className="pb-3 font-subtitle text-xl text-white/55">/mês*</span>
+                </div>
+
+                <p className="mt-4 font-subtitle text-base leading-relaxed text-white/60 md:text-lg">
+                  Menos de <strong className="text-white">R$ 1 por dia</strong>, mais barato que o café que você toma sem nem pensar.
+                  Esse aqui te devolve dinheiro no fim do mês.
+                </p>
+
+                <button className="mt-8 flex w-full items-center justify-center gap-3 rounded-2xl bg-cultiv-accent py-4 font-display text-lg font-bold text-[#06150f] transition-transform hover:scale-[1.02]">
+                  Começar agora <span aria-hidden="true">→</span>
+                </button>
+                <p className="mt-5 text-center font-display text-base font-bold text-cultiv-accent">14 dias grátis para testar</p>
+                <p className="mx-auto mt-1 max-w-sm text-center font-subtitle text-sm leading-relaxed text-white/45">
+                  *Valor mensal equivalente. Cobrança única anual de R$ 349,90.
+                </p>
+              </div>
+
+              <div className="border-t border-white/10 bg-white/[0.025] px-7 py-9 md:px-10 md:py-11">
+                <p className="font-display text-sm font-bold uppercase tracking-[0.15em] text-white/50">Tudo isso incluso</p>
+                <ul className="mt-7 flex flex-col gap-5">
                 {FEATURES.map((f, i) => (
                   <motion.li
-                    key={f}
+                    key={f.title}
                     initial={{ opacity: 0, x: -12 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true, margin: "-80px" }}
                     transition={{ duration: 0.4, delay: staggerDelay(i), ease: EASE_OUT }}
-                    className="flex items-start gap-3 text-sm text-white/90"
+                    className="flex items-start gap-3 font-subtitle text-base text-white/60"
                   >
-                    <svg viewBox="0 0 20 20" fill="none" className="mt-0.5 h-5 w-5 shrink-0 text-cultiv-mint">
+                    <svg viewBox="0 0 20 20" fill="none" className="mt-0.5 h-6 w-6 shrink-0 rounded-md border border-cultiv-accent/40 bg-cultiv-accent/10 p-1 text-cultiv-accent">
                       <path d="M4 10.5l3.5 3.5L16 6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                    {f}
+                    <span><strong className="text-white">{f.title}:</strong> {f.text}</span>
                   </motion.li>
                 ))}
-              </ul>
-
-              <button className="mt-8 w-full rounded-full bg-cultiv-mint py-3.5 font-display font-bold text-[#1e1e1e] transition-transform hover:scale-[1.02]">
-                Teste por 7 dias grátis
-              </button>
+                </ul>
+              </div>
             </motion.div>
         </div>
       </div>
