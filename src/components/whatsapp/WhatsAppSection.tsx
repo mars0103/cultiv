@@ -28,7 +28,7 @@ export function WhatsAppSection() {
       <MountainSky behindMountain={<FloatingWhatsAppIcon className="left-[30%] top-[47%] md:left-[32%] md:top-[46%]" />}>
         <LeafRain count={8} />
       </MountainSky>
-      <Ribbon path="s" color="#AD0E44" strokeWidth={42} className="bottom-8 right-8 z-[5] hidden h-[120px] w-[360px] opacity-35 md:block" />
+      <Ribbon path="s" color="#AD0E44" strokeWidth={42} className="-right-24 bottom-4 z-20 h-24 w-64 opacity-35 md:bottom-8 md:right-8 md:h-[120px] md:w-[360px]" />
 
       <div className="relative z-10 mx-auto max-w-4xl px-6 pt-24 text-center md:absolute md:left-1/2 md:top-24 md:-translate-x-1/2 md:pt-0">
         <RevealLine as="h2" className="font-title text-4xl text-cultiv-ink md:text-6xl">

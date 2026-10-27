@@ -21,8 +21,8 @@ const thirdColumn = FEEDBACKS.slice(4, 6);
 export function FeedbacksSection() {
   return (
     <section className="relative w-full overflow-hidden bg-[#FDF1F5] py-24 md:py-32">
-      <Ribbon path="hook" color="#AD0E44" strokeWidth={50} className="right-0 top-8 hidden h-[240px] w-[240px] opacity-60 md:block" rotate={140} />
-      <Ribbon path="wave" color="#C1FFBC" strokeWidth={72} className="bottom-8 left-0 hidden h-[220px] w-[400px] opacity-70 md:block" delay={0.2} />
+      <Ribbon path="hook" color="#AD0E44" strokeWidth={50} className="-right-24 top-2 z-20 h-40 w-40 opacity-60 md:right-0 md:top-8 md:h-[240px] md:w-[240px]" rotate={140} />
+      <Ribbon path="wave" color="#C1FFBC" strokeWidth={72} className="-bottom-6 -left-24 z-20 h-32 w-64 opacity-70 md:bottom-8 md:left-0 md:h-[220px] md:w-[400px]" delay={0.2} />
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
         <div className="mx-auto max-w-xl text-center">

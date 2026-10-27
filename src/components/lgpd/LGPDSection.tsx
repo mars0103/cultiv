@@ -39,8 +39,8 @@ const CYCLE = STEP * CARDS.length;
 export function LGPDSection() {
   return (
     <section className="relative flex w-full flex-col items-center overflow-hidden bg-[#00C853] px-6 py-24 text-center md:py-32">
-      <Ribbon path="arc" color="#AD0E44" strokeWidth={56} className="left-0 top-8 hidden h-[220px] w-[320px] opacity-60 md:block" rotate={8} />
-      <Ribbon path="wave" color="#0b1f14" strokeWidth={42} className="bottom-8 right-0 hidden h-[180px] w-[380px] opacity-25 md:block" delay={0.15} />
+      <Ribbon path="arc" color="#AD0E44" strokeWidth={56} className="-left-24 top-2 z-20 h-36 w-60 opacity-60 md:left-0 md:top-8 md:h-[220px] md:w-[320px]" rotate={8} />
+      <Ribbon path="wave" color="#0b1f14" strokeWidth={42} className="-bottom-6 -right-24 z-20 h-28 w-64 opacity-25 md:bottom-8 md:right-0 md:h-[180px] md:w-[380px]" delay={0.15} />
 
       <RevealLine as="h2" className="relative z-10 font-title text-4xl text-white md:text-7xl">
         Seus dados nunca ficam com a gente

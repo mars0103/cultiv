@@ -17,8 +17,8 @@ const FEATURES = [
 export function PlanoSection() {
   return (
     <section id="plano" className="relative w-full overflow-hidden bg-[#F0FBEA] py-24 md:py-32">
-      <Ribbon path="s" color="#AD0E44" strokeWidth={50} className="left-0 top-8 hidden h-[160px] w-[380px] opacity-70 md:block" rotate={-6} />
-      <Ribbon path="hook" color="#00C853" strokeWidth={50} className="bottom-8 right-0 hidden h-[280px] w-[280px] opacity-50 md:block" delay={0.2} rotate={30} />
+      <Ribbon path="s" color="#AD0E44" strokeWidth={50} className="-left-16 top-16 z-20 h-24 w-60 opacity-70 md:left-0 md:top-8 md:h-[160px] md:w-[380px]" rotate={-6} />
+      <Ribbon path="hook" color="#00C853" strokeWidth={50} className="-bottom-8 -right-24 z-20 h-44 w-44 opacity-50 md:bottom-8 md:right-0 md:h-[280px] md:w-[280px]" delay={0.2} rotate={30} />
 
       <div className="relative z-10 mx-auto w-full max-w-5xl px-6 text-center">
         <Reveal duration={0.5} className="inline-flex items-center rounded-full bg-cultiv-pink/10 px-4 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-cultiv-pink">
